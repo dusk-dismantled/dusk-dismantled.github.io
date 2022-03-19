@@ -1,0 +1,749 @@
+:root {
+  --cortemplate1: #ddd;
+  --cortemplate2: #333;
+  --cortemplate3: #fafafa;
+  --cortemplate4: #ccc;
+}
+
+#ficha-de-personagem-nscrpg {
+  position: relative;
+  background: var(--cortemplate1);
+  border: 20px solid var(--cortemplate4);
+  width: 630px;
+  margin: auto;
+  height: 650px;
+  display: grid;
+  grid-template-rows: 600px 50px;
+}
+#ficha-de-personagem-nscrpg br {
+  display: none;
+}
+#ficha-de-personagem-nscrpg .página-2 .informativo br,
+#ficha-de-personagem-nscrpg .página-3 br,
+#ficha-de-personagem-nscrpg .página-5 .arsenal-personagem br {
+  display: block;
+}
+
+#ficha-de-personagem-nscrpg .página-1 {
+  display: grid;
+  grid-template-columns: 250px auto;
+  z-index: 2;
+}
+#ficha-de-personagem-nscrpg .página-1 .imagem-principal {
+  object-fit: cover;
+  width: 250px;
+  height: 600px;
+}
+#ficha-de-personagem-nscrpg .página-1 .caixa-informações-principais {
+  flex-wrap: wrap;
+  display: flex;
+  padding: 15px;
+  gap: 5px;
+}
+#ficha-de-personagem-nscrpg
+  .página-1
+  .caixa-informações-principais
+  nome-completo-personagem {
+  color: var(--cortemplate2);
+  display: block;
+  width: -webkit-fill-available;
+  font: 900 62px Montserrat;
+  text-transform: uppercase;
+  letter-spacing: -3px;
+  line-height: 46px;
+  margin-top: 10px;
+}
+#ficha-de-personagem-nscrpg .página-1 .caixa-informações-principais div {
+  border: 1px solid var(--cortemplate4);
+  border-radius: 4px;
+  background: var(--cortemplate3);
+  flex: auto;
+  height: 30px;
+  font: 400 12px "Nunito";
+  color: var(--cortemplate2);
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  position: relative;
+  padding-bottom: 2px;
+  padding-right: 10px;
+}
+#ficha-de-personagem-nscrpg
+  .página-1
+  .caixa-informações-principais
+  div[title]:before {
+  font-family: "Font Awesome 5 Pro";
+  background: var(--corpricipalficha);
+  display: flex;
+  padding: 11px;
+  width: 10px;
+  height: 10px;
+  align-items: center;
+  justify-content: center;
+  color: var(--cortemplate4);
+  font-size: 16px;
+  margin-right: 5px;
+  font-weight: 100;
+  position: relative;
+  top: 2px;
+}
+#ficha-de-personagem-nscrpg
+  .página-1
+  .caixa-informações-principais
+  img.imagem-menor {
+  object-fit: cover;
+  width: 100%;
+  height: 100px;
+}
+#ficha-de-personagem-nscrpg .página-1 .caixa-informações-principais div:after {
+  content: attr(title);
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  text-transform: uppercase;
+  font: 900 8px Roboto;
+}
+#ficha-de-personagem-nscrpg
+  .página-1
+  .caixa-informações-principais
+  div[title="local de origem"]:before {
+  content: "\f4c9";
+}
+#ficha-de-personagem-nscrpg
+  .página-1
+  .caixa-informações-principais
+  div[title="vila"]:before {
+  content: "\f015";
+}
+#ficha-de-personagem-nscrpg
+  .página-1
+  .caixa-informações-principais
+  div[title="clã"]:before {
+  content: "\f6a5";
+}
+#ficha-de-personagem-nscrpg
+  .página-1
+  .caixa-informações-principais
+  div[title="idade"]:before {
+  content: "\f736";
+}
+#ficha-de-personagem-nscrpg
+  .página-1
+  .caixa-informações-principais
+  div[title="gênero"]:before {
+  content: "\f228";
+}
+#ficha-de-personagem-nscrpg
+  .página-1
+  .caixa-informações-principais
+  div[title="graduação"]:before {
+  content: "\f5f3";
+}
+#ficha-de-personagem-nscrpg
+  .página-1
+  .caixa-informações-principais
+  div[title="classe"]:before {
+  content: "\f504";
+}
+#ficha-de-personagem-nscrpg
+  .página-1
+  .caixa-informações-principais
+  div[title="cargo"]:before {
+  content: "\f0b1";
+}
+#ficha-de-personagem-nscrpg
+  .página-1
+  .caixa-informações-principais
+  div[title="alcunha"]:before {
+  content: "\f762";
+}
+#ficha-de-personagem-nscrpg
+  .página-1
+  .caixa-informações-principais
+  div[title="alinhamento"]:before {
+  content: "\f6ad";
+}
+#ficha-de-personagem-nscrpg
+  .página-1
+  .caixa-informações-principais
+  div[title="ryuos"]:before {
+  content: "\f555";
+}
+#ficha-de-personagem-nscrpg
+  .página-1
+  .caixa-informações-principais
+  frase-de-efeito {
+  font: 500 12px Mukta;
+  line-height: 100%;
+  background: var(--cortemplate4);
+  padding: 10px;
+  display: flex;
+  align-items: center;
+}
+
+#ficha-de-personagem-nscrpg .botões-guia {
+  display: flex;
+  grid-row-start: 2;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid var(--cortemplate4);
+  background: var(--cortemplate2);
+  gap: 5px;
+  padding: 0px 5px;
+}
+#ficha-de-personagem-nscrpg .botões-guia .botão-guia-1 {
+  background: var(--corpricipalficha);
+  padding: 10px;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  color: var(--cortemplate1);
+  border-radius: 5px;
+  line-height: 10px;
+  height: 10px;
+}
+#ficha-de-personagem-nscrpg .botões-guia .botão-guia-1:after {
+  content: attr(title);
+  position: relative;
+  margin-left: 10px;
+  text-transform: uppercase;
+  font: 900 10px Roboto;
+  line-height: 10px;
+}
+
+#ficha-de-personagem-nscrpg .pagvisivel {
+  z-index: 2;
+}
+#ficha-de-personagem-nscrpg .página-1,
+#ficha-de-personagem-nscrpg .página-2,
+#ficha-de-personagem-nscrpg .página-3,
+#ficha-de-personagem-nscrpg .página-4,
+#ficha-de-personagem-nscrpg .página-5,
+#ficha-de-personagem-nscrpg .página-6 {
+  width: 630px;
+  height: 600px;
+  position: absolute;
+  background: var(--cortemplate1);
+}
+
+#ficha-de-personagem-nscrpg .página-2 {
+  padding: 20px;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 5px;
+}
+#ficha-de-personagem-nscrpg .página-2 .informativo {
+  flex-direction: column;
+  border: 1px solid var(--cortemplate4);
+  border-radius: 4px;
+  background: var(--cortemplate3);
+  flex: auto;
+  font: 400 14px "Nunito";
+  color: var(--cortemplate2);
+  display: flex;
+  position: relative;
+  padding: 20px;
+  text-align: justify;
+  line-height: 12px;
+  overflow: auto;
+  height: 515px;
+}
+#ficha-de-personagem-nscrpg .página-2 .informativo:before {
+  content: attr(title);
+  position: relative;
+  text-transform: uppercase;
+  font: 900 20px Montserrat;
+}
+
+#ficha-de-personagem-nscrpg .página-2 .informativo tag {
+  line-height: 12px;
+  margin: 2px 0px;
+}
+#ficha-de-personagem-nscrpg .página-2 .informativo tag:before {
+  content: attr(title);
+  position: relative;
+  text-transform: uppercase;
+  font: 900 8px Roboto;
+  background: var(--corpricipalficha);
+  padding: 5px;
+  color: var(--cortemplate3);
+  text-shadow: 0 0 5px #1c1c1c;
+  float: left;
+  margin-right: 2px;
+}
+#ficha-de-personagem-nscrpg .página-3 {
+  padding: 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+#ficha-de-personagem-nscrpg .página-3:before {
+  content: "\f5da"attr(title);
+  position: relative;
+  text-transform: uppercase;
+  font: 900 20px Roboto, "Font Awesome 5 Pro";
+  background: var(--corpricipalficha);
+  padding: 20px;
+  color: var(--cortemplate3);
+  text-shadow: 0 0 5px #1c1c1c;
+}
+#ficha-de-personagem-nscrpg .página-3 tag {
+  flex-direction: column;
+  border: 1px solid var(--cortemplate4);
+  border-radius: 4px;
+  background: var(--cortemplate3);
+  flex: auto;
+  font: 400 14px "Nunito";
+  color: var(--cortemplate2);
+  display: flex;
+  position: relative;
+  padding: 20px;
+  text-align: justify;
+  line-height: 12px;
+  overflow: auto;
+  height: 515px;
+}
+
+#ficha-de-personagem-nscrpg .página-4 .status-personagem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid var(--cortemplate4);
+  background: var(--cortemplate3);
+  gap: 5px;
+  padding: 0px 5px;
+  height: 50px;
+}
+#ficha-de-personagem-nscrpg .página-4 status {
+  background: var(--cortemplate1);
+  padding: 10px;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  color: var(--cortemplate2);
+  border-radius: 5px;
+  font: 900 12px Roboto;
+}
+#ficha-de-personagem-nscrpg .página-4 status[title]:before {
+  content: attr(title);
+  position: relative;
+  text-transform: uppercase;
+  font: 900 12px Roboto, "Font Awesome 5 Pro";
+  margin-right: 10px;
+}
+#ficha-de-personagem-nscrpg .página-4 status[title=" HP"]:before {
+  content: "\f21e"attr(title);
+  color: red;
+}
+#ficha-de-personagem-nscrpg .página-4 status[title=" ST"]:before {
+  content: "\f70c"attr(title);
+  color: #d4a12c;
+}
+#ficha-de-personagem-nscrpg .página-4 status[title=" CK"]:before {
+  content: "\f06d"attr(title);
+  color: blue;
+}
+#ficha-de-personagem-nscrpg .página-4 status[title=" MP"]:before {
+  content: "\f85c"attr(title);
+  color: purple;
+}
+
+#ficha-de-personagem-nscrpg .página-4 .atributos-personagem {
+  border: 1px solid var(--cortemplate4);
+  background: var(--cortemplate3);
+  font: 400 14px "Nunito";
+  color: var(--cortemplate2);
+  position: relative;
+  padding: 20px;
+  text-align: justify;
+  flex-wrap: wrap;
+  display: flex;
+  flex-direction: column;
+  padding-top: 40px;
+}
+#ficha-de-personagem-nscrpg .página-4 .atributos-personagem classeatri {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+#ficha-de-personagem-nscrpg .página-4 .atributos-personagem classeatri div {
+  border-radius: 5px;
+  height: 10px;
+  background: var(--cortemplate4);
+  width: 100%;
+  border: 1px solid var(--cortemplate1);
+  display: flex;
+  position: relative;
+  flex: 29%;
+  margin-top: 10px;
+}
+#ficha-de-personagem-nscrpg
+  .página-4
+  .atributos-personagem
+  classeatri
+  div
+  span {
+  background: var(--corpricipalficha);
+  border-radius: 5px;
+  height: 10px;
+}
+#ficha-de-personagem-nscrpg
+  .página-4
+  .atributos-personagem
+  classeatri
+  div
+  span[number="1"] {
+  width: 16%;
+}
+#ficha-de-personagem-nscrpg
+  .página-4
+  .atributos-personagem
+  classeatri
+  div
+  span[number="2"] {
+  width: 36%;
+}
+#ficha-de-personagem-nscrpg
+  .página-4
+  .atributos-personagem
+  classeatri
+  div
+  span[number="3"] {
+  width: 48%;
+}
+#ficha-de-personagem-nscrpg
+  .página-4
+  .atributos-personagem
+  classeatri
+  div
+  span[number="4"] {
+  width: 64%;
+}
+#ficha-de-personagem-nscrpg
+  .página-4
+  .atributos-personagem
+  classeatri
+  div
+  span[number="5"] {
+  width: 80%;
+}
+#ficha-de-personagem-nscrpg
+  .página-4
+  .atributos-personagem
+  classeatri
+  div
+  span[number="6"] {
+  width: 100%;
+}
+#ficha-de-personagem-nscrpg
+  .página-4
+  .atributos-personagem
+  classeatri
+  div:before {
+  content: attr(title);
+  position: absolute;
+  text-transform: uppercase;
+  font: 900 8px Roboto;
+  margin-top: -10px;
+}
+#ficha-de-personagem-nscrpg
+  .página-4
+  .atributos-personagem
+  classeatri
+  div
+  span:after {
+  content: attr(number) " pontos";
+  position: absolute;
+  text-transform: uppercase;
+  font: 900 8px Roboto;
+  top: -10px;
+  right: 2px;
+}
+#ficha-de-personagem-nscrpg .página-4 .atributos-personagem classeatri:before {
+  content: "atributos " attr(title);
+  position: absolute;
+  text-transform: uppercase;
+  font: 900 15px Roboto;
+  margin-top: -17px;
+  color: var(--corpricipalficha);
+}
+
+#ficha-de-personagem-nscrpg .página-4 .talismã-personagem {
+  border: 1px solid var(--cortemplate4);
+  background: var(--cortemplate3);
+  font: 400 14px "Nunito";
+  color: var(--cortemplate2);
+  position: relative;
+  padding: 20px;
+  text-align: justify;
+  flex-wrap: wrap;
+  display: flex;
+  height: 166px;
+  padding-top: 40px;
+}
+#ficha-de-personagem-nscrpg .página-4 .talismã-personagem talismã {
+  flex: 20%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  margin-bottom: 30px;
+  position: relative;
+}
+#ficha-de-personagem-nscrpg
+  .página-4
+  .talismã-personagem
+  talismã[title]:before {
+  content: "";
+  background: center/cover;
+  width: 55px;
+  height: 50px;
+  display: block;
+}
+#ficha-de-personagem-nscrpg
+  .página-4
+  .talismã-personagem
+  talismã[title="Galo"]:before {
+  background-image: url(https://3.bp.blogspot.com/-MOBtQAXr0EQ/Vc-HX38xdKI/AAAAAAAAgEs/Gnt7BZUE-FM/s1600/Talism%25C3%25A3%2Bdo%2BGalo.png);
+}
+#ficha-de-personagem-nscrpg
+  .página-4
+  .talismã-personagem
+  talismã[title="Rato"]:before {
+  background-image: url(https://3.bp.blogspot.com/-TM7DVeMr9jc/Vc-Hn9tnnrI/AAAAAAAAgFM/bBWz6d9xTHw/s1600/Talism%25C3%25A3%2Bdo%2BRato.png);
+}
+#ficha-de-personagem-nscrpg
+  .página-4
+  .talismã-personagem
+  talismã[title="Coelho"]:before {
+  background-image: url(https://3.bp.blogspot.com/--ZM_ZyA9UM0/Vc-G16of9dI/AAAAAAAAgEQ/5EWOXPwrm4c/s1600/Talism%25C3%25A3%2Bdo%2BCoelho.png);
+}
+#ficha-de-personagem-nscrpg
+  .página-4
+  .talismã-personagem
+  talismã[title="Porco"]:before {
+  background-image: url(https://2.bp.blogspot.com/-gF85vHKakUY/Vc-HhrjeXVI/AAAAAAAAgE8/dogt8DP6nOM/s1600/Talism%25C3%25A3%2Bdo%2BPorco.png);
+}
+#ficha-de-personagem-nscrpg
+  .página-4
+  .talismã-personagem
+  talismã[title="Cobra"]:before {
+  background-image: url(https://4.bp.blogspot.com/-S74FhbdaFe4/Vc-Hkff02tI/AAAAAAAAgFE/cCjoN-UY4yc/s1600/Talism%25C3%25A3%2Bda%2BSerpente.png);
+}
+#ficha-de-personagem-nscrpg
+  .página-4
+  .talismã-personagem
+  talismã[title="Macaco"]:before {
+  background-image: url(https://2.bp.blogspot.com/-a10ZlmY4DDE/Vc-Hd0pktnI/AAAAAAAAgE0/7cTy1il52g4/s1600/Talism%25C3%25A3%2Bdo%2BMacaco.png);
+}
+#ficha-de-personagem-nscrpg
+  .página-4
+  .talismã-personagem
+  talismã[title="Dragão"]:before {
+  background-image: url(https://4.bp.blogspot.com/-eQGuM5cSMrQ/Vc-HUY5mVzI/AAAAAAAAgEk/bkYnGGw_XDk/s1600/Talism%25C3%25A3%2Bdo%2BDrag%25C3%25A3o.png);
+}
+#ficha-de-personagem-nscrpg .página-4 .talismã-personagem talismã[title]:after {
+  content: "talismã do " attr(title);
+  position: absolute;
+  text-transform: uppercase;
+  font: 900 8px Roboto;
+  margin-top: -87px;
+  background: var(--corpricipalficha);
+  padding: 5px;
+  color: var(--cortemplate3);
+  text-shadow: 0px 0px 5px #1c1c1c;
+}
+#ficha-de-personagem-nscrpg .página-4 .talismã-personagem talismã t {
+  background: var(--corpricipalficha);
+  padding: 13px;
+  color: var(--cortemplate3);
+  text-shadow: 0px 0px 5px #1c1c1c;
+  width: 10px;
+  height: 10px;
+  position: absolute;
+  border-radius: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Montserrat";
+  font-size: 15px;
+  bottom: 0;
+  right: 38px;
+}
+
+#ficha-de-personagem-nscrpg .página-5 .habilidades-personagem {
+  border: 1px solid var(--cortemplate4);
+  background: var(--cortemplate3);
+  font: 400 14px "Nunito";
+  color: var(--cortemplate2);
+  position: relative;
+  padding: 20px;
+  text-align: justify;
+  flex-wrap: wrap;
+  display: flex;
+  flex-direction: column;
+}
+#ficha-de-personagem-nscrpg .página-5 .habilidades-personagem tag {
+  flex: auto;
+  margin: 3px 0px;
+}
+#ficha-de-personagem-nscrpg
+  .página-5
+  .habilidades-personagem
+  tag[title]:before {
+  content: attr(title);
+  position: relative;
+  text-transform: uppercase;
+  font: 900 10px Roboto;
+  background: var(--corpricipalficha);
+  padding: 5px;
+  color: var(--cortemplate3);
+  text-shadow: 0 0 5px #1c1c1c;
+  float: left;
+  margin-right: 2px;
+  width: 75px;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+}
+#ficha-de-personagem-nscrpg .página-5 .habilidades-personagem tag.fama {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+#ficha-de-personagem-nscrpg .página-5 .habilidades-personagem tag.fama div {
+  border-radius: 5px;
+  height: 10px;
+  background: var(--cortemplate4);
+  width: 100%;
+  border: 1px solid var(--cortemplate1);
+  display: flex;
+  position: relative;
+  flex: 29%;
+  margin-top: 10px;
+}
+#ficha-de-personagem-nscrpg
+  .página-5
+  .habilidades-personagem
+  tag.fama[title]:before {
+  float: none;
+}
+#ficha-de-personagem-nscrpg
+  .página-5
+  .habilidades-personagem
+  tag.fama
+  div
+  span {
+  background: var(--corpricipalficha);
+  border-radius: 5px;
+  height: 10px;
+}
+#ficha-de-personagem-nscrpg
+  .página-5
+  .habilidades-personagem
+  tag.fama
+  div:before {
+  content: attr(title);
+  position: absolute;
+  text-transform: uppercase;
+  font: 900 8px Roboto;
+  margin-top: -10px;
+}
+#ficha-de-personagem-nscrpg
+  .página-5
+  .habilidades-personagem
+  tag.fama
+  div
+  span:after {
+  content: attr(number) " pontos";
+  position: absolute;
+  text-transform: uppercase;
+  font: 900 8px Roboto;
+  top: -10px;
+  right: 2px;
+}
+#ficha-de-personagem-nscrpg .página-5 .arsenal-personagem {
+  border: 1px solid var(--cortemplate4);
+  background: var(--cortemplate3);
+  font: 400 14px "Nunito";
+  color: var(--cortemplate2);
+  position: relative;
+  padding: 20px;
+  text-align: justify;
+  display: flex;
+  flex-direction: column;
+  height: 205px;
+  overflow: auto;
+}
+#ficha-de-personagem-nscrpg .página-5 .arsenal-personagem:before {
+  content: attr(title);
+  position: relative;
+  text-transform: uppercase;
+  font: 900 20px Montserrat;
+}
+#ficha-de-personagem-nscrpg:after {
+  content: "By Loola resources for Naruto Chronicles 2021";
+  position: absolute;
+  bottom: -15px;
+  text-transform: uppercase;
+  font: 900 8px Roboto;
+}
+
+#ficha-de-personagem-nscrpg .página-6 .afinidades {
+  border: 1px solid var(--cortemplate4);
+  background: var(--cortemplate3);
+  font: 400 14px "Nunito";
+  color: var(--cortemplate2);
+  position: relative;
+  padding: 20px;
+  text-align: justify;
+  display: flex;
+  flex-direction: column;
+  height: 533px;
+  overflow: auto;
+}
+#ficha-de-personagem-nscrpg .página-6 .afinidades personagem {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 5px;
+}
+#ficha-de-personagem-nscrpg .página-6 .afinidades personagem tag,
+#ficha-de-personagem-nscrpg .página-6 .afinidades personagem tag br {
+  line-height: 24px;
+  display: block;
+}
+#ficha-de-personagem-nscrpg
+  .página-6
+  .afinidades
+  personagem
+  img.imagem-afindade {
+  object-fit: cover;
+  width: 100px;
+  height: 100px;
+  margin-right: 5px;
+}
+#ficha-de-personagem-nscrpg .página-6 .afinidades personagem b {
+  position: relative;
+  text-transform: uppercase;
+  font: 900 8px Roboto;
+  background: var(--corpricipalficha);
+  padding: 5px;
+  color: var(--cortemplate3);
+  text-shadow: 0 0 5px #1c1c1c;
+  margin-right: 2px;
+}
+#ficha-de-personagem-nscrpg .página-6 .afinidades:before {
+  content: "\f5da"attr(title);
+  position: relative;
+  text-transform: uppercase;
+  font: 900 20px Roboto, "Font Awesome 5 Pro";
+  background: var(--corpricipalficha);
+  padding: 20px;
+  color: var(--cortemplate3);
+  text-shadow: 0 0 5px #1c1c1c;
+  margin-bottom: 10px;
+}
