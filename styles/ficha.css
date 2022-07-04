@@ -508,43 +508,49 @@
   .página-4
   .talismã-personagem
   talismã[title="Galo"]:before {
-  background-image: url(https://3.bp.blogspot.com/-MOBtQAXr0EQ/Vc-HX38xdKI/AAAAAAAAgEs/Gnt7BZUE-FM/s1600/Talism%25C3%25A3%2Bdo%2BGalo.png);
+  background-image: url(https://i.imgur.com/p2Vc0ZY.png);
 }
 #ficha-de-personagem-nscrpg
   .página-4
   .talismã-personagem
   talismã[title="Rato"]:before {
-  background-image: url(https://3.bp.blogspot.com/-TM7DVeMr9jc/Vc-Hn9tnnrI/AAAAAAAAgFM/bBWz6d9xTHw/s1600/Talism%25C3%25A3%2Bdo%2BRato.png);
+  background-image: url(https://i.imgur.com/GA8YmA5.png);
 }
 #ficha-de-personagem-nscrpg
   .página-4
   .talismã-personagem
   talismã[title="Coelho"]:before {
-  background-image: url(https://3.bp.blogspot.com/--ZM_ZyA9UM0/Vc-G16of9dI/AAAAAAAAgEQ/5EWOXPwrm4c/s1600/Talism%25C3%25A3%2Bdo%2BCoelho.png);
+  background-image: url(https://i.imgur.com/lJoWFVK.png);
 }
 #ficha-de-personagem-nscrpg
   .página-4
   .talismã-personagem
   talismã[title="Porco"]:before {
-  background-image: url(https://2.bp.blogspot.com/-gF85vHKakUY/Vc-HhrjeXVI/AAAAAAAAgE8/dogt8DP6nOM/s1600/Talism%25C3%25A3%2Bdo%2BPorco.png);
+  background-image: url(https://i.imgur.com/hCgkZhd.png);
 }
 #ficha-de-personagem-nscrpg
   .página-4
   .talismã-personagem
   talismã[title="Cobra"]:before {
-  background-image: url(https://4.bp.blogspot.com/-S74FhbdaFe4/Vc-Hkff02tI/AAAAAAAAgFE/cCjoN-UY4yc/s1600/Talism%25C3%25A3%2Bda%2BSerpente.png);
+  background-image: url(https://i.imgur.com/vVHXIxU.png);
 }
 #ficha-de-personagem-nscrpg
   .página-4
   .talismã-personagem
   talismã[title="Macaco"]:before {
-  background-image: url(https://2.bp.blogspot.com/-a10ZlmY4DDE/Vc-Hd0pktnI/AAAAAAAAgE0/7cTy1il52g4/s1600/Talism%25C3%25A3%2Bdo%2BMacaco.png);
+  background-image: url(https://i.imgur.com/z2REvaY.png);
 }
 #ficha-de-personagem-nscrpg
   .página-4
   .talismã-personagem
   talismã[title="Dragão"]:before {
-  background-image: url(https://4.bp.blogspot.com/-eQGuM5cSMrQ/Vc-HUY5mVzI/AAAAAAAAgEk/bkYnGGw_XDk/s1600/Talism%25C3%25A3%2Bdo%2BDrag%25C3%25A3o.png);
+  background-image: url(https://i.imgur.com/efQ4a1M.png);
+}
+#ficha-de-personagem-nscrpg
+  .página-4
+  .talismã-personagem
+  talismã[title="Tigre"]:before {
+  background-image: url(https://i.imgur.com/7dPr0NT.png);
 }
 #ficha-de-personagem-nscrpg .página-4 .talismã-personagem talismã[title]:after {
   content: "talismã do " attr(title);
