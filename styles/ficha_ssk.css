@@ -1,199 +1,1179 @@
 :root {
-   --optionBackground: var(--defaultBackground, #E6E9ED);
-   --defaultColor: #ED5565;
+  --optionBackground: var(--defaultBackground, #e6e9ed);
+  --defaultColor: #ed5565;
 }
 
 .options {
-   display: flex;
-   flex-direction: column;
-   align-items: stretch;
-   overflow: hidden;
-   min-height: 1000px;
-   max-height: 1000px;
-   height: calc(100% - 100px);
-   width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  overflow: hidden;
+  min-height: 1000px;
+  max-height: 1000px;
+  height: calc(100% - 100px);
+  width: 100%;
 }
 
 .options .option {
-   position: relative;
-   overflow: hidden;
-   min-height: 60px;
-   margin: 10px;
-   background: var(--optionBackground);
-   background-size: cover;
-   background-position: center;
-   cursor: pointer;
-   transition: .5s cubic-bezier(0.05, 0.61, 0.41, 0.95);
+  position: relative;
+  overflow: hidden;
+  min-height: 60px;
+  margin: 10px;
+  background: var(--optionBackground);
+  background-size: cover;
+  background-position: center;
+  cursor: pointer;
+  transition: 0.5s cubic-bezier(0.05, 0.61, 0.41, 0.95);
 }
 
 .options .option.active {
-   flex-grow: 10000;
-   transform: scale(1);
-   max-width: 600px;
-   margin: 0;
-   border-radius: 40px;
+  flex-grow: 10000;
+  transform: scale(1);
+  max-width: 600px;
+  margin: 0;
+  border-radius: 40px;
 }
 
 .options .option.active .shadow {
-   mix-blend-mode: multiply;
-   background: var(--cor);
+  mix-blend-mode: multiply;
+  background: var(--cor);
 }
 
 .options .option.active .label {
-   top: 20px;
-   left: 20px;
+  top: 20px;
+  left: 20px;
 }
 
 .options .option:not(.active) {
-   flex-grow: 1;
-   border-radius: 30px;
+  flex-grow: 1;
+  border-radius: 30px;
 }
 
 .options .option:not(.active) .label {
-   bottom: 10px;
-   left: 10px;
+  bottom: 10px;
+  left: 10px;
 }
 
 .options .option .shadow {
-   position: absolute;
-   bottom: 0;
-   left: 0;
-   right: 0;
-   height: 100%;
-   mix-blend-mode: multiply;
-   background: #1c1c1c;
-   transition: .5s cubic-bezier(0.05, 0.61, 0.41, 0.95);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  mix-blend-mode: multiply;
+  background: #1c1c1c;
+  transition: 0.5s cubic-bezier(0.05, 0.61, 0.41, 0.95);
 }
 
 .options .option .label {
-   display: flex;
-   position: absolute;
-   right: 0;
-   height: 40px;
-   transition: .5s cubic-bezier(0.05, 0.61, 0.41, 0.95);
+  display: flex;
+  position: absolute;
+  right: 0;
+  height: 40px;
+  transition: 0.5s cubic-bezier(0.05, 0.61, 0.41, 0.95);
 }
 
 .options .option .label .icon {
-   display: flex;
-   justify-content: center;
-   align-items: center;
-   min-width: 40px;
-   max-width: 40px;
-   height: 40px;
-   border-radius: 100%;
-   background-color: white;
-   color: var(--defaultBackground);
-   font-weight: 900;
-   font-family: "Font Awesome 5 Free";
-   -moz-osx-font-smoothing: grayscale;
-   -webkit-font-smoothing: antialiased;
-    display: inline-block;
-    font-style: normal;
-    font-variant: normal;
-    text-rendering: auto;
-    line-height: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 40px;
+  max-width: 40px;
+  height: 40px;
+  border-radius: 100%;
+  background-color: white;
+  color: var(--defaultBackground);
+  font-weight: 900;
+  font-family: "Font Awesome 5 Free";
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  display: inline-block;
+  font-style: normal;
+  font-variant: normal;
+  text-rendering: auto;
+  line-height: 1;
 }
 
 .options .option .label .icon:before {
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   width: 100%;
-   height: 100%;
-   font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 1rem;
 }
 
 .options .option .label .icon.raca:before {
-   content: "\f471";
+  content: "\f471";
 }
 
 .options .option .label .icon.combatente:before {
-   content: "\f0c0";
+  content: "\f0c0";
 }
 
 .options .option .label .icon.he:before {
-   content: "\f0eb";
+  content: "\f0eb";
 }
 
 .options .option .label .icon.tecnicas:before {
-   content: "\f140";
+  content: "\f140";
 }
 
 .options .option .label .icon.akuma:before {
-   content: "\f5d1";
+  content: "\f5d1";
 }
 
 .options .option .label .icon.armamento:before {
-   content: "\f255";
+  content: "\f255";
 }
 
 .options .option .label .icon.observacao:before {
-   content: "\f06e";
+  content: "\f06e";
 }
 
 .options .option .label .icon.rei:before {
-   content: "\f521";
+  content: "\f521";
 }
 
 .options .option .label .icon.meitou:before {
-   content: "\f6a1";
+  content: "\f6a1";
 }
 
 .options .option .label .icon.ciborgue:before {
-   content: "\f544";
+  content: "\f544";
 }
 
 .options .option .label .info {
-   display: flex;
-   flex-direction: column;
-   justify-content: center;
-   margin-left: 10px;
-   color: white;
-   white-space: pre;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-left: 10px;
+  color: white;
+  white-space: pre;
 }
 
 .options .option .label .info > div {
-   position: relative;
-   transition: .5s cubic-bezier(0.05, 0.61, 0.41, 0.95), opacity .5s ease-out;
+  position: relative;
+  transition: 0.5s cubic-bezier(0.05, 0.61, 0.41, 0.95), opacity 0.5s ease-out;
 }
 
 .options .option .label .info .main {
-   font-weight: bold;
-   font-size: 1.2rem;
-   font-style: normal;
+  font-weight: bold;
+  font-size: 1.2rem;
+  font-style: normal;
 }
 
 .options .option .label .info .sub {
-   transition-delay: .1s;
-   font-style: normal;
+  transition-delay: 0.1s;
+  font-style: normal;
 }
 
 .options .option .description {
-   display: none;
+  display: none;
 }
 
 .options .option.active .description {
-   display: flex;
-   flex-direction: column;
-   position: absolute;
-   left: 26px;
-   bottom: 20px;
-   width: 90%;
-   background: #f3f3f3;
-   color: #000;
-   height: 150px;
-   padding: 16px;
-   box-sizing: border-box;
-   font-family: heebo;
-   box-shadow: 1px 2px #938e8e;
-   border-radius: 8px;
-   opacity: 0.9;
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  left: 26px;
+  bottom: 20px;
+  width: 90%;
+  background: #f3f3f3;
+  color: #000;
+  height: 150px;
+  padding: 16px;
+  box-sizing: border-box;
+  font-family: heebo;
+  box-shadow: 1px 2px #938e8e;
+  border-radius: 8px;
+  opacity: 0.9;
 }
 
 .options .option.active .description .nivel {
-   text-transform: uppercase;
-   color: var(--cor);
-   font-size: 12px;
-   letter-spacing: 5px;
-   font-weight: bold;
+  text-transform: uppercase;
+  color: var(--cor);
+  font-size: 12px;
+  letter-spacing: 5px;
+  font-weight: bold;
+}
+
+#ficha.civil {
+  --fundo: url(https://i.imgur.com/MTkkQcz.png);
+  --cor: #ff33ad;
+}
+#ficha.pirata {
+  --fundo: url(https://i.imgur.com/iMyrFka.png);
+  --cor: #e81919;
+}
+#ficha.marinheiro {
+  --fundo: url(https://i.imgur.com/B8wuS6C.png);
+  --cor: #14a6db;
+}
+#ficha.cr {
+  --fundo: url(https://i.imgur.com/kkzlCng.png);
+  --cor: #389626;
+}
+#ficha.agente {
+  --fundo: url(https://i.imgur.com/6mE8vFB.png);
+  --cor: #515fb8;
+}
+#ficha.revo {
+  --fundo: url(https://i.imgur.com/TcVZriv.png);
+  --cor: #a60000;
+}
+#ficha {
+  width: 600px;
+  margin: 0 auto;
+  background-color: var(--cor);
+  background-image: var(--fundo);
+  border-radius: 100px 100px 0 0;
+  padding-top: 32px;
+  box-shadow: 2px 2px 3px #666;
+  margin-bottom: 10px;
+}
+#ficha br {
+  display: none;
+}
+.corpo {
+  background: #fff;
+  padding-bottom: 15px;
+  margin-top: -1px;
+}
+.perfil {
+  width: 180px;
+  height: 180px;
+  border-radius: 100%;
+  background-color: #666;
+  background-image: url();
+  background-size: cover;
+  background-repeat: no-repeat;
+  margin: 0 0 -20px 30px;
+  float: left;
+  border: 12px solid #fff;
+}
+#ficha .cabeçalho {
+  width: 320px;
+  height: 100px;
+  margin: 28px 0 0 250px !important;
+}
+#ficha .nome br {
+  display: block;
+}
+#ficha .nome {
+  font-family: poppins;
+  width: 320px;
+  text-transform: uppercase;
+  text-align: justify;
+  color: #fff0;
+  font-weight: bold;
+  font-size: 36px;
+  line-height: 33px;
+  -webkit-text-stroke: 1.5px #fff;
+  letter-spacing: 2px;
+}
+#ficha .nome::first-line {
+  letter-spacing: -1px;
+  color: #fff;
+  -webkit-text-stroke: none;
+  font-size: 44px;
+}
+#ficha .botao {
+  box-shadow: 1px 1px 3px #666;
+  border: none;
+  display: inline-block;
+  width: 35px;
+  height: 35px;
+  background: #fff;
+  border-radius: 100%;
+  margin: 20px 10px;
+}
+#ficha .botao svg {
+  width: 20px;
+  height: 20px;
+  fill: #b41414;
+  opacity: 0.8;
+  transition: all ease 0.6s;
+}
+#ficha .botao:hover {
+  cursor: pointer;
+}
+#ficha .botao:hover svg {
+  opacity: 1;
+}
+#ficha .pagina-1,
+#ficha .pagina-2,
+#ficha .pagina-3,
+#ficha .pagina-4 {
+  display: none;
+  margin: 0 30px 30px 30px;
+}
+.atv {
+  display: block !important;
+}
+#ficha .pagina-1 .infos {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+}
+#ficha .pagina-1 .infos c:before {
+  content: attr(name);
+  position: absolute;
+  margin: -16px 0 0 -18px;
+  text-transform: uppercase;
+  color: var(--cor);
+  font-size: 9px;
+  font-weight: bold;
+}
+#ficha .pagina-1 .infos c {
+  display: inline-block;
+  font-family: heebo;
+  font-size: 12px;
+  padding: 3px 15px;
+  color: #000;
+  margin: 0 10px 25px 0;
+  min-width: 80px;
+  border-radius: 8px;
+  background-color: #f3f3f3;
+  box-shadow: 1px 2px #dfdfdf;
+}
+.pagina-1 .infos c[name="alinhamento moral"] {
+  min-width: 120px;
+}
+html {
+  --bgColorMenu: #fff;
+  --duration: 0.7s;
+}
+#ficha .pagina-1 d br,
+#ficha .pagina-2 d br,
+#ficha .pagina-3 d br,
+#ficha .pagina-4 d br {
+  display: block;
+}
+#ficha .pagina-1 d:before,
+#ficha .pagina-2 d:before,
+#ficha .pagina-4 d:before {
+  display: block;
+  content: attr(name);
+  text-transform: uppercase;
+  color: var(--cor);
+  font-size: 10px;
+  letter-spacing: 5px;
+  margin: 20px 0 15px 12px;
+  font-weight: bold;
+}
+#ficha .pagina-1 d,
+#ficha .pagina-2 d,
+#ficha .pagina-3 d,
+#ficha .pagina-4 d {
+  display: block;
+  margin: 0 auto;
+  width: 480px;
+  margin: 0 auto 20px;
+  text-align: justify;
+  font-family: heebo;
+  font-size: 12px;
+  padding: 3px 15px 15px;
+  color: #000;
+  min-width: 40px;
+  border-radius: 8px;
+  background-color: #f3f3f3;
+  box-shadow: 1px 2px #dfdfdf;
+}
+#ficha d[name="fama"],
+#ficha d[name="nivel"] {
+  width: 300px;
+  margin-bottom: 45px;
+}
+#ficha d[name="fama"]:before {
+  content: "Fama (" attr(valor) ")";
+}
+#ficha d[name="nivel"]:before {
+  content: "Nivel do Personagem (" attr(nivel) ")";
+}
+#ficha d barra {
+  display: block;
+  height: 5px;
+  background-color: var(--cor);
+  border-radius: 30px;
+  margin-bottom: 10px;
+  margin-left: 10px;
+}
+#ficha d[valor="0"] barra {
+  width: 6px;
+}
+#ficha d[valor="1"] barra {
+  width: 11px;
+}
+#ficha d[valor="2"] barra {
+  width: 16px;
+}
+#ficha d[valor="3"] barra {
+  width: 21px;
+}
+#ficha d[valor="4"] barra {
+  width: 26px;
+}
+#ficha d[valor="5"] barra {
+  width: 31px;
+}
+#ficha d[valor="6"] barra {
+  width: 36px;
+}
+#ficha d[valor="7"] barra {
+  width: 41px;
+}
+#ficha d[valor="8"] barra {
+  width: 46px;
+}
+#ficha d[valor="9"] barra {
+  width: 51px;
+}
+#ficha d[valor="10"] barra {
+  width: 57px;
+}
+#ficha d[valor="11"] barra {
+  width: 62px;
+}
+#ficha d[valor="12"] barra {
+  width: 67px;
+}
+#ficha d[valor="13"] barra {
+  width: 72px;
+}
+#ficha d[valor="13"] barra {
+  width: 77px;
+}
+#ficha d[valor="14"] barra {
+  width: 82px;
+}
+#ficha d[valor="15"] barra {
+  width: 87px;
+}
+#ficha d[valor="16"] barra {
+  width: 92px;
+}
+#ficha d[valor="17"] barra {
+  width: 97px;
+}
+#ficha d[valor="18"] barra {
+  width: 102px;
+}
+#ficha d[valor="19"] barra {
+  width: 107px;
+}
+#ficha d[valor="20"] barra {
+  width: 113px;
+}
+#ficha d[valor="21"] barra {
+  width: 118px;
+}
+#ficha d[valor="22"] barra {
+  width: 123px;
+}
+#ficha d[valor="23"] barra {
+  width: 128px;
+}
+#ficha d[valor="24"] barra {
+  width: 133px;
+}
+#ficha d[valor="25"] barra {
+  width: 138px;
+}
+#ficha d[valor="26"] barra {
+  width: 143px;
+}
+#ficha d[valor="27"] barra {
+  width: 148px;
+}
+#ficha d[valor="28"] barra {
+  width: 153px;
+}
+#ficha d[valor="29"] barra {
+  width: 158px;
+}
+#ficha d[valor="30"] barra {
+  width: 165px;
+}
+#ficha d[valor="31"] barra {
+  width: 170px;
+}
+#ficha d[valor="32"] barra {
+  width: 175px;
+}
+#ficha d[valor="33"] barra {
+  width: 180px;
+}
+#ficha d[valor="34"] barra {
+  width: 185px;
+}
+#ficha d[valor="35"] barra {
+  width: 190px;
+}
+#ficha d[valor="36"] barra {
+  width: 195px;
+}
+#ficha d[valor="37"] barra {
+  width: 200px;
+}
+#ficha d[valor="38"] barra {
+  width: 205px;
+}
+#ficha d[valor="39"] barra {
+  width: 210px;
+}
+#ficha d[valor="40"] barra {
+  width: 216px;
+}
+#ficha d[valor="41"] barra {
+  width: 221px;
+}
+#ficha d[valor="42"] barra {
+  width: 226px;
+}
+#ficha d[valor="42"] barra {
+  width: 231px;
+}
+#ficha d[valor="43"] barra {
+  width: 236px;
+}
+#ficha d[valor="44"] barra {
+  width: 241px;
+}
+#ficha d[valor="45"] barra {
+  width: 248px;
+}
+#ficha d[valor="46"] barra {
+  width: 255px;
+}
+#ficha d[valor="47"] barra {
+  width: 260px;
+}
+#ficha d[valor="48"] barra {
+  width: 261px;
+}
+#ficha d[valor="49"] barra {
+  width: 265px;
+}
+#ficha d[valor="50"] barra {
+  width: 270px;
+}
+#ficha d[name="aparência"] {
+  width: 215px !important;
+  display: inline-block !important;
+  margin: 0 10px 20px 15px !important;
+}
+#ficha d[name="personalidade"] {
+  width: 215px !important;
+  display: inline-block !important;
+  margin: 0 15px 20px 10px !important;
+}
+.menu-ficha {
+  opacity: 0.9;
+  margin: 3.5rem 0 0 !important;
+  border-radius: 13px !important;
+  display: flex;
+  width: 290px;
+  font-size: 1.5em;
+  padding: 0 0.85em;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bgColorMenu);
+}
+.menu__item {
+  all: unset;
+  flex-grow: 1;
+  z-index: 100;
+  display: flex;
+  cursor: pointer;
+  position: relative;
+  border-radius: 50%;
+  align-items: center;
+  will-change: transform;
+  justify-content: center;
+  transition: transform var(--timeOut, var(--duration));
+}
+.menu__item::before {
+  content: "";
+  z-index: -1;
+  width: 2.5em;
+  height: 2.5em;
+  border-radius: 50%;
+  position: absolute;
+  transform: scale(0);
+  transition: background-color var(--duration), transform var(--duration);
+}
+.menu__item.active {
+  transform: translate3d(0, -0.8em, 0);
+}
+.menu__item.active::before {
+  transform: scale(1);
+  background-color: var(--cor);
+}
+.icon {
+  color: #000;
+  width: 1.5em;
+  height: 2.6em;
+  stroke: black;
+  fill: transparent;
+  stroke-width: 1pt;
+  stroke-miterlimit: 10;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 400;
+}
+.menu__item.active .icon {
+  animation: strok 1.5s reverse;
+  color: #fff;
+}
+@keyframes strok {
+  100% {
+    stroke-dashoffset: 400;
+  }
+}
+.menu__border {
+  left: 0;
+  bottom: 99%;
+  width: 5.5em;
+  height: 1.6em;
+  position: absolute;
+  clip-path: url(#menu);
+  will-change: transform;
+  background-color: var(--bgColorMenu);
+  transition: transform var(--timeOut, var(--duration));
+}
+.svg-container {
+  width: 0;
+  height: 0;
+}
+@media screen and (max-width: 50em) {
+  .menu {
+    font-size: 0.8em;
+  }
+}
+#ficha .pagina-2 .atb,
+#ficha .pagina-2 .status,
+#ficha .pagina-2 .edc,
+#ficha .pagina-2 .prof {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+}
+#ficha .pagina-2 .f:before {
+  content: "Atributos Físicos";
+  text-transform: uppercase;
+  color: var(--cor);
+  font-size: 10px;
+  letter-spacing: 5px;
+  margin: 20px 0 15px 12px;
+  font-weight: bold;
+  width: 600px;
+  text-align: center;
+}
+#ficha .pagina-2 .m:before {
+  content: "Atributos Mentais";
+  text-transform: uppercase;
+  color: var(--cor);
+  font-size: 10px;
+  letter-spacing: 5px;
+  margin: 20px 0 15px 12px;
+  font-weight: bold;
+  width: 600px;
+  text-align: center;
+}
+#ficha .pagina-2 .s:before {
+  content: "Atributos Sociais";
+  text-transform: uppercase;
+  color: var(--cor);
+  font-size: 10px;
+  letter-spacing: 5px;
+  margin: 20px 0 15px 12px;
+  font-weight: bold;
+  width: 600px;
+  text-align: center;
+}
+#ficha .pagina-2 .status c {
+  display: inline-block;
+  font-family: heebo;
+  font-size: 12px;
+  padding: 3px 15px;
+  color: #000;
+  margin: 0 20px 25px;
+  min-width: 25px;
+  border-radius: 8px;
+  background-color: #f3f3f3;
+  box-shadow: 1px 2px #dfdfdf;
+}
+#ficha .pagina-2 .status c:before {
+  content: attr(status);
+  position: absolute;
+  margin: -16px 0 0 -14px;
+  text-transform: uppercase;
+  color: var(--cor);
+  font-size: 9px;
+  font-weight: bold;
+}
+#ficha .pagina-2 .atb c {
+  display: inline-block;
+  position: relative;
+  font-family: heebo;
+  font-size: 12px;
+  padding: 3px 15px;
+  color: #000;
+  margin: 0 3px 35px;
+  min-width: 98px;
+  border-radius: 8px;
+  background-color: #f3f3f3;
+  box-shadow: 1px 2px #dfdfdf;
+}
+#ficha .pagina-2 .atb c:before {
+  content: attr(atb) " (" attr(valor) ")";
+  position: absolute;
+  left: 2px;
+  top: -10px;
+  text-transform: uppercase;
+  color: var(--cor);
+  font-size: 9px;
+  font-weight: bold;
+}
+#ficha .pagina-2 .atb c[atb="vontade"]:before {
+  content: "Força de Vontade (" attr(valor) ")";
+  letter-spacing: -0.5px;
+}
+#ficha .pagina-2 .edc:before {
+  content: "Estilos de Combate";
+  text-transform: uppercase;
+  color: var(--cor);
+  font-size: 10px;
+  letter-spacing: 5px;
+  margin: 20px 0 15px 12px;
+  font-weight: bold;
+  width: 600px;
+  text-align: center;
+}
+#ficha .pagina-2 .prof:before {
+  content: "Profissões e Proficiências";
+  text-transform: uppercase;
+  color: var(--cor);
+  font-size: 10px;
+  letter-spacing: 5px;
+  margin: 20px 0 15px 12px;
+  font-weight: bold;
+  width: 600px;
+  text-align: center;
+}
+#ficha .pagina-2 d i,
+#ficha .pagina-4 d i {
+  font-style: normal;
+  margin-bottom: 4px;
+  display: block;
+}
+#ficha .pagina-2 d i:before {
+  content: "x " attr(dis);
+  display: block;
+  text-transform: uppercase;
+  color: var(--cor);
+  font-size: 8px;
+  letter-spacing: 3px;
+  line-height: 1px;
+  font-weight: bold;
+}
+#ficha .pagina-4 d i:before {
+  content: "x " attr(nome);
+  display: block;
+  text-transform: uppercase;
+  color: var(--cor);
+  font-size: 8px;
+  letter-spacing: 3px;
+  line-height: 1px;
+  font-weight: bold;
+}
+#ficha .pagina-3 menu {
+  width: 90px;
+  display: inline-block;
+}
+#ficha .pagina-3 menu button {
+  opacity: 0.9;
+  width: 40px;
+  height: 40px;
+  background-color: var(--cor);
+  border-radius: 100%;
+  box-shadow: 1px 1px 3px #bbb;
+  margin: 8px;
+  border: 2px solid var(--cor) !important;
+}
+#ficha .pagina-3 menu button:hover {
+  background-color: #fff;
+}
+#ficha .pagina-3 menu button.at {
+  background-color: #fff;
+}
+#ficha .pagina-3 arvore .r,
+#ficha .pagina-3 arvore .c,
+#ficha .pagina-3 arvore .e,
+#ficha .pagina-3 arvore .t,
+#ficha .pagina-3 arvore .a,
+#ficha .pagina-3 arvore .h,
+#ficha .pagina-3 arvore .m,
+#ficha .pagina-3 arvore .y {
+  display: none;
+  height: 430px;
+  width: 420px;
+}
+#ficha .pagina-3 arvore .at {
+  display: inline-block;
+}
+#ficha .pagina-3 arvore .r {
+  background: url(https://i.imgur.com/OiYu85L.png);
+  position: relative;
+}
+#ficha .pagina-3 arvore .c {
+  background: url(https://i.imgur.com/lb7DiUL.png);
+}
+#ficha .pagina-3 arvore .e {
+  background: url(https://i.imgur.com/vk2Jdq8.png);
+}
+#ficha .pagina-3 arvore .t {
+  background: url(https://i.imgur.com/ZdGAs3y.png);
+}
+#ficha .pagina-3 arvore .a {
+  background: url(https://i.imgur.com/1romtu9.png);
+}
+#ficha .pagina-3 arvore .h {
+  background: url(https://i.imgur.com/YybxfnE.png);
+}
+#ficha .pagina-3 arvore .m {
+  background: url(https://i.imgur.com/4aVP7bA.png);
+}
+#ficha .pagina-3 arvore .y {
+  background: url(https://i.imgur.com/295rKNI.png);
+}
+#ficha .pagina-3 menu button svg {
+  width: 22px;
+  height: 22px;
+  color: #fff;
+}
+#ficha .pagina-3 menu button:hover svg {
+  color: var(--cor);
+}
+#ficha .pagina-3 menu button.at svg {
+  color: var(--cor);
+}
+#ficha .pagina-3 d {
+  display: none;
+}
+#ficha .pagina-3 d.at {
+  display: block;
+}
+#ficha .pagina-4 .moedas {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  margin-bottom: 30px;
+  opacity: 0.9;
+}
+#ficha .pagina-4 .moedas m {
+  width: 90px;
+  height: 90px;
+  margin: 20px 25px 50px;
+}
+#ficha .pagina-4 .moedas m.berrie {
+  background: url(https://i.imgur.com/LLV1uTD.png);
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+#ficha .pagina-4 .moedas m.cristal {
+  background: url(https://i.imgur.com/kjVoqn8.png);
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+#ficha .pagina-4 .moedas m.esmeralda {
+  background: url(https://i.imgur.com/4WyIw8X.png);
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+#ficha .pagina-4 .moedas m.perola {
+  background: url(https://i.imgur.com/6TnRicP.png);
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+#ficha .pagina-4 .moedas m.rubi {
+  background: url(https://i.imgur.com/DHTLaCJ.png);
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+#ficha .pagina-4 .moedas m:before {
+  text-transform: uppercase;
+  color: var(--cor);
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-align: center;
+  font-weight: bold;
+  position: relative;
+  top: -25px;
+  display: block;
+  width: 90px;
+}
+#ficha .pagina-4 .moedas m.berrie:before {
+  content: "Berries";
+}
+#ficha .pagina-4 .moedas m.cristal:before {
+  content: "Cristais";
+}
+#ficha .pagina-4 .moedas m.esmeralda:before {
+  content: "Esmeraldas";
+}
+#ficha .pagina-4 .moedas m.perola:before {
+  content: "Perólas";
+}
+#ficha .pagina-4 .moedas m.rubi:before {
+  content: "Rubis";
+}
+#ficha .pagina-4 .moedas m:after {
+  content: attr(quantidade);
+  display: block;
+  background-color: var(--cor);
+  min-width: 80px;
+  padding: 2px;
+  text-align: center;
+  color: #fff;
+  font-weight: bold;
+  font-size: 10px;
+  border-radius: 30px;
+  margin: 75px 0 0 0;
+  opacity: 0.9;
+}
+#ficha .pagina-4 .moedas m.berrie:after {
+  content: "฿ " attr(quantidade);
+}
+#ficha .pagina-3 d {
+  margin-top: 20px;
+}
+#ficha .pagina-3 d:before {
+  display: block;
+  text-transform: uppercase;
+  color: var(--cor);
+  font-size: 10px;
+  letter-spacing: 5px;
+  margin: 20px 0 15px 12px;
+  font-weight: bold;
+}
+#ficha .pagina-3 d.r:before {
+  content: "Caminho Racial";
+}
+#ficha .pagina-3 d.e:before {
+  content: "Estilo de Luta Especial";
+}
+#ficha .pagina-3 d.t:before {
+  content: "Técnicas";
+}
+#ficha .pagina-3 d.c:before {
+  content: "Combatente";
+}
+#ficha .pagina-3 d.a:before {
+  content: "Akuma no Mi";
+}
+#ficha .pagina-3 d.h:before {
+  content: "Haki";
+}
+#ficha .pagina-3 d.m:before {
+  content: "Meitou";
+}
+#ficha .pagina-3 d.y:before {
+  content: "Cyborgue";
+}
+#ficha .pagina-3 ru:before {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  content: "RU";
+  font-family: poppins;
+  position: absolute;
+  color: #fff;
+  background: var(--cor);
+  opacity: 0.9;
+  border-radius: 100%;
+  padding: 10px;
+  font-size: 18px;
+  width: 25px;
+  height: 25px;
+  text-align: center;
+  font-weight: bold;
+  top: 0px;
+  left: 198px;
+}
+#ficha .pagina-3 no:before {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  content: "NO";
+  font-family: poppins;
+  position: absolute;
+  color: #fff;
+  background: var(--cor);
+  opacity: 0.9;
+  border-radius: 100%;
+  padding: 10px;
+  font-size: 18px;
+  width: 25px;
+  height: 25px;
+  text-align: center;
+  font-weight: bold;
+  top: 60px;
+  left: 123px;
+}
+#ficha .pagina-3 me:before {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  content: "ME";
+  font-family: poppins;
+  position: absolute;
+  color: #fff;
+  background: var(--cor);
+  opacity: 0.9;
+  border-radius: 100%;
+  padding: 10px;
+  font-size: 18px;
+  width: 25px;
+  height: 25px;
+  text-align: center;
+  font-weight: bold;
+  top: 100px;
+  left: 250px;
+}
+#ficha .pagina-3 bo:before {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  content: "BO";
+  font-family: poppins;
+  position: absolute;
+  color: #fff;
+  background: var(--cor);
+  opacity: 0.9;
+  border-radius: 100%;
+  padding: 10px;
+  font-size: 18px;
+  width: 25px;
+  height: 25px;
+  text-align: center;
+  font-weight: bold;
+  top: 160px;
+  left: 120px;
+}
+#ficha .pagina-3 ot:before {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  content: "OT";
+  font-family: poppins;
+  position: absolute;
+  color: #fff;
+  background: var(--cor);
+  opacity: 0.9;
+  border-radius: 100%;
+  padding: 10px;
+  font-size: 18px;
+  width: 25px;
+  height: 25px;
+  text-align: center;
+  font-weight: bold;
+  top: 210px;
+  left: 225px;
+}
+#ficha .pagina-3 ex:before {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  content: "EX";
+  font-family: poppins;
+  position: absolute;
+  color: #fff;
+  background: var(--cor);
+  opacity: 0.9;
+  border-radius: 100%;
+  padding: 10px;
+  font-size: 18px;
+  width: 25px;
+  height: 25px;
+  text-align: center;
+  font-weight: bold;
+  top: 235px;
+  left: 85px;
+}
+#ficha .pagina-3 de:before {
+  content: "DE";
+  font-family: poppins;
+  position: absolute;
+  color: #fff;
+  background: var(--cor);
+  opacity: 0.9;
+  border-radius: 100%;
+  padding: 10px;
+  font-size: 18px;
+  width: 25px;
+  height: 25px;
+  text-align: center;
+  font-weight: bold;
+}
+#ficha .pagina-3 .line-1 {
+  position: absolute;
+  width: 80px;
+  height: 4px;
+  background-color: var(--cor);
+  opacity: 0.9;
+  top: 52px;
+  left: 139px;
+  transform: rotate(-40deg);
+}
+#ficha .pagina-3 .line-2 {
+  position: absolute;
+  width: 100px;
+  height: 4px;
+  background-color: var(--cor);
+  opacity: 0.9;
+  top: 102px;
+  left: 159px;
+  transform: rotate(20deg);
+}
+#ficha .pagina-3 .line-3 {
+  position: absolute;
+  width: 100px;
+  height: 4px;
+  background-color: var(--cor);
+  opacity: 0.9;
+  top: 152px;
+  left: 159px;
+  transform: rotate(-25deg);
+}
+#ficha .pagina-3 .line-4 {
+  position: absolute;
+  width: 100px;
+  height: 4px;
+  background-color: var(--cor);
+  opacity: 0.9;
+  top: 210px;
+  left: 156px;
+  transform: rotate(25deg);
+}
+#ficha .pagina-3 .line-5 {
+  position: absolute;
+  width: 105px;
+  height: 4px;
+  background-color: var(--cor);
+  opacity: 0.9;
+  top: 243px;
+  left: 125px;
+  transform: rotate(-12deg);
 }
