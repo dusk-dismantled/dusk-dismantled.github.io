@@ -94,8 +94,53 @@
     line-height: 1;
 }
 
+.options .option .label .icon:before {
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   width: 100%;
+   height: 100%;
+   font-size: 1rem;
+}
+
 .options .option .label .icon.raca:before {
    content: "\f471";
+}
+
+.options .option .label .icon.combatente:before {
+   content: "\e533";
+}
+
+.options .option .label .icon.he:before {
+   content: "\f0eb";
+}
+
+.options .option .label .icon.tecnicas:before {
+   content: "\f140";
+}
+
+.options .option .label .icon.akuma:before {
+   content: "\f5d1";
+}
+
+.options .option .label .icon.armamento:before {
+   content: "\f255";
+}
+
+.options .option .label .icon.observacao:before {
+   content: "\f06e";
+}
+
+.options .option .label .icon.rei:before {
+   content: "\f521";
+}
+
+.options .option .label .icon.meitou:before {
+   content: "\f6a1";
+}
+
+.options .option .label .icon.ciborgue:before {
+   content: "\f544";
 }
 
 .options .option .label .info {
