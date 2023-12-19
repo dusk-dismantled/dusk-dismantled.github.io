@@ -49,11 +49,6 @@
    border-radius: 30px;
 }
 
-.options .option:not(.active) .shadow {
-   bottom: -40px;
-   box-shadow: inset 0 -120px 0 -120px black, inset 0 -120px 0 -100px black;
-}
-
 .options .option:not(.active) .label {
    bottom: 10px;
    left: 10px;
