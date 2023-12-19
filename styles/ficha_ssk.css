@@ -9,7 +9,7 @@
    align-items: stretch;
    overflow: hidden;
    min-height: 600px;
-   max-height: 900px;
+   max-height: 1000px;
    height: calc(100% - 100px);
    width: 100%;
 }
