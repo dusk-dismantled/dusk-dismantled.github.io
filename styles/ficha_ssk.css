@@ -102,53 +102,41 @@
 .options .option .label .info .main {
    font-weight: bold;
    font-size: 1.2rem;
+   font-style: normal;
 }
 
 .options .option .label .info .sub {
    transition-delay: .1s;
+   font-style: normal;
 }
 
-@media screen and (max-width: 718px) {
-   .options {
-      min-width: 520px;
-   }
-   .options .option:nth-child(5) {
-      display: none;
-   }
+.options .option .description {
+   display: none;
 }
 
-@media screen and (max-width: 638px) {
-   .options {
-      min-width: 440px;
-   }
-   .options .option:nth-child(4) {
-      display: none;
-   }
+.options .option.active .description {
+   display: flex;
+   flex-direction: column;
+   position: absolute;
+   left: 26px;
+   bottom: 20px;
+   width: 90%;
+   background: #f3f3f3;
+   color: #000;
+   height: 150px;
+   padding: 16px;
+   box-sizing: border-box;
+   font-family: heebo;
+   box-shadow: 1px 2px #938e8e;
+   border-radius: 8px;
+   opacity: 0.9;
 }
 
-@media screen and (max-width: 558px) {
-   .options {
-      min-width: 360px;
-   }
-   .options .option:nth-child(3) {
-      display: none;
-   }
-}
-
-@media screen and (max-width: 478px) {
-   .options {
-      min-width: 280px;
-   }
-   .options .option:nth-child(2) {
-      display: none;
-   }
-}
-
-@media screen and (max-width: 398px) {
-   .options {
-      min-width: 200px;
-   }
-   .options .option:nth-child(1) {
-      display: none;
-   }
+.options .option.active .description .nivel {
+   text-transform: uppercase;
+   color: var(--cor);
+   font-size: 12px;
+   letter-spacing: 5px;
+   margin: 0 0 16px;
+   font-weight: bold;
 }
