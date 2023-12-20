@@ -945,7 +945,7 @@ html {
   content: "Rubis";
 }
 #ficha .pagina-4 .moedas m.checkpoint:before {
-  content: "Checkpoints";
+  content: "Checkpoint";
 }
 #ficha .pagina-4 .moedas m:after {
   content: attr(quantidade);
