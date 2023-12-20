@@ -563,12 +563,10 @@ html {
   width: 270px;
 }
 #ficha d[name="aparência"] {
-  width: 215px !important;
   display: inline-block !important;
   margin: 0 10px 20px 15px !important;
 }
 #ficha d[name="personalidade"] {
-  width: 215px !important;
   display: inline-block !important;
   margin: 0 15px 20px 10px !important;
 }
