@@ -912,6 +912,11 @@ html {
   background-size: cover;
   background-repeat: no-repeat;
 }
+#ficha .pagina-4 .moedas m.checkpoint {
+  background: url(https://i.imgur.com/duBpMT0.png);
+  background-size: cover;
+  background-repeat: no-repeat;
+}
 #ficha .pagina-4 .moedas m:before {
   text-transform: uppercase;
   color: var(--cor);
@@ -938,6 +943,9 @@ html {
 }
 #ficha .pagina-4 .moedas m.rubi:before {
   content: "Rubis";
+}
+#ficha .pagina-4 .moedas m.checkpoint:before {
+  content: "Checkpoints";
 }
 #ficha .pagina-4 .moedas m:after {
   content: attr(quantidade);
