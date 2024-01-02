@@ -34,6 +34,10 @@
   border-radius: 40px;
 }
 
+.options .option.active .description br {
+  display: block !important;
+}
+
 .options .option.active .shadow {
   mix-blend-mode: multiply;
   background: var(--cor);
