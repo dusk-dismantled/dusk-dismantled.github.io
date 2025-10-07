@@ -4,7 +4,7 @@
   margin: 0 auto;
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 0 12px rgba(20, 0, 0, 0.3);
+  box-shadow: 0 0 12px rgba(40, 0, 0, 0.25);
 }
 
 .sign-image {
@@ -28,14 +28,14 @@
   background: linear-gradient(
     120deg,
     transparent 45%,
-    rgba(255, 255, 255, 0.04) 50%,
+    rgba(255, 255, 255, 0.05) 50%,
     transparent 55%
   );
   background-size: 180% 180%;
-  animation: sheen 20s linear infinite;
+  animation: sheen 14s linear infinite;
   border-radius: inherit;
   pointer-events: none;
-  opacity: 0.2;
+  opacity: 0.25;
 }
 
 .sign-image::after {
@@ -46,9 +46,9 @@
   background: radial-gradient(
     circle at center,
     transparent 65%,
-    rgba(0, 0, 0, 0.4) 100%
+    rgba(0, 0, 0, 0.35) 100%
   );
-  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3);
   pointer-events: none;
 }
 
@@ -66,34 +66,22 @@
   color: rgba(128, 14, 19, 0.85);
   background-position: 50% 50%;
   background-size: 118%;
-  animation: heartBeat 2.4s cubic-bezier(0.22, 0.61, 0.36, 1) infinite;
-  text-shadow: 0 0 8px rgba(0, 0, 0, 0.25);
+  animation: pulseShift 8s ease-in-out infinite alternate;
+  text-shadow: 0 0 12px rgba(0, 0, 0, 0.25);
 }
 
-@keyframes heartBeat {
+@keyframes pulseShift {
   0% {
     background-size: 118%;
-    background-position: 50% 52%;
-  }
-  10% {
-    background-size: 130%;
-    background-position: 50% 48%;
-  }
-  20% {
-    background-size: 118%;
-    background-position: 50% 51%;
-  }
-  35% {
-    background-size: 125%;
-    background-position: 50% 49%;
+    background-position: 50% 56%;
   }
   50% {
-    background-size: 118%;
-    background-position: 50% 50%;
+    background-size: 130%;
+    background-position: 50% 44%;
   }
   100% {
     background-size: 118%;
-    background-position: 50% 52%;
+    background-position: 50% 50%;
   }
 }
 
