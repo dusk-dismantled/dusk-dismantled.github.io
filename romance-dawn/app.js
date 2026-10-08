@@ -86,6 +86,10 @@ function currentCharacter() {
 function currentProject() {
   return { format: "romance-dawn", version: 1, character: clone(currentCharacter()), history: clone(project.history) };
 }
+function resizePreview() {
+  const frame = $("#preview"), sheet = frame.contentDocument?.querySelector(".rd-sheet");
+  if (sheet) frame.style.height = Math.ceil(sheet.getBoundingClientRect().bottom + 20) + "px";
+}
 function setPreview() {
   try {
     const c = clone(currentCharacter());
@@ -102,6 +106,7 @@ function setPreview() {
     tab.forEach((n) => n.checked = n.getAttribute("aria-label") === (steps[step][0] === "review" ? active : steps[step][1]));
     if (![...tab].some((n) => n.checked)) tab[0].checked = true;
     node.querySelectorAll("details").forEach((n) => n.open = opened.includes(n.querySelector("summary")?.textContent?.trim()));
+    resizePreview();
     $("#preview-name").textContent = c.identity.name || "Seu personagem";
     const load = document.querySelector("#load-summary");
     if (load) load.textContent = "Carga: " + loadTotal(c) + " / " + capacity(c) + " espa\xE7os" + (loadTotal(c) > capacity(c) ? " \u2014 acima da capacidade" : "");
@@ -476,6 +481,12 @@ async function main() {
   const loaded = new Promise((resolve) => frame.addEventListener("load", () => resolve(), { once: true }));
   frame.srcdoc = '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><link rel="stylesheet" href="assets/fonts/fonts.css"><style>' + sheetCSS + "</style></head><body></body></html>";
   await loaded;
+  const previewDoc = frame.contentDocument;
+  previewDoc.documentElement.style.overflow = "hidden";
+  new ResizeObserver(resizePreview).observe(previewDoc.body);
+  previewDoc.addEventListener("change", () => requestAnimationFrame(resizePreview));
+  previewDoc.addEventListener("toggle", () => requestAnimationFrame(resizePreview), true);
+  void previewDoc.fonts.ready.then(resizePreview);
   restore();
   $("#preview-faction").innerHTML = Object.entries(FACTIONS).filter(([key]) => key !== "auto").map(([key, label]) => '<option value="' + key + '"' + (key === "neutral" ? " selected" : "") + ">" + label + "</option>").join("");
   $("#create-module").onclick = () => enter("create");
