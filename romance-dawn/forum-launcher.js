@@ -945,6 +945,14 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
         if (!await authorized() || document.getElementById("rd-bord-app-button")) return;
         const style = document.createElement("style");
         style.textContent = "#rd-bord-app-button{position:fixed;left:auto;right:16px;top:16px;z-index:9999;padding:11px 16px;border:1px solid #e6bd78;border-radius:7px;background:#272633;color:#f5eee1;cursor:pointer;font:700 11px/1.4 Verdana,sans-serif}#rd-bord-app-dialog{position:fixed;inset:0;margin:auto;box-sizing:border-box;width:98vw;max-width:98vw;height:96vh;max-height:96vh;border:1px solid #e6bd78;border-radius:12px;padding:0;background:#191923;color:#f5eee1}#rd-bord-app-dialog::backdrop,#rd-publication-confirm::backdrop{background:#080910dd}#rd-bord-app-dialog>header{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;font:700 11px Verdana,sans-serif}#rd-bord-app-dialog>header>button{background:transparent;border:0;color:inherit;font-size:24px;cursor:pointer}#rd-bord-app-dialog iframe{width:100%;height:calc(100% - 44px);border:0;display:block}#rd-publication-confirm button{padding:10px 14px;border:1px solid #e6bd78;border-radius:6px;background:#191923;color:#f5eee1;cursor:pointer}";
+        style.textContent += `html.rd-bord-modal-open,html.rd-bord-modal-open body{overflow:hidden!important;overscroll-behavior:none}
+  #rd-bord-app-button{background:var(--fundo,#e7e6e1);color:var(--frio,#5b8f97);border:1px solid var(--frio,#5b8f97);border-radius:6px;padding:12px 18px;box-shadow:0 4px 16px var(--sombra,#9995);font:400 12px/1.4 'Paytone One',Verdana,sans-serif;letter-spacing:.4px;transition:background .2s,color .2s,border-color .2s,box-shadow .2s}
+  #rd-bord-app-button::before{content:'';position:absolute;left:10px;right:10px;bottom:0;height:2px;background:var(--gradiente,linear-gradient(315deg,#cf7058,#5b8f97));border-radius:2px}
+  body.darkmode #rd-bord-app-button{color:#e7e6e1}
+  #rd-bord-app-button:hover{background:var(--frio,#5b8f97);color:#fff;border-color:var(--quente,#cf7058);box-shadow:0 6px 20px var(--sombra,#9995)}
+  #rd-bord-app-button:focus-visible{outline:2px solid var(--quente,#cf7058);outline-offset:4px}
+  #rd-bord-app-dialog{background:var(--fundo,#e7e6e1);color:var(--frio,#5b8f97);border-color:var(--frio,#5b8f97)}
+  body.darkmode #rd-bord-app-dialog{color:#e7e6e1}`;
         document.head.append(style);
         const button = document.createElement("button");
         button.type = "button";
@@ -976,11 +984,15 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
         button.onclick = () => {
           if (!frame.getAttribute("src")) frame.src = appURL.href;
           dialog.showModal();
+          document.documentElement.classList.add("rd-bord-modal-open");
           close.focus();
           syncTheme2();
         };
         close.onclick = () => dialog.close();
-        dialog.addEventListener("close", () => button.focus());
+        dialog.addEventListener("close", () => {
+          document.documentElement.classList.remove("rd-bord-modal-open");
+          button.focus({ preventScroll: true });
+        });
         new MutationObserver(syncTheme2).observe(document.body, { attributes: true, attributeFilter: ["class"] });
       }
     }
