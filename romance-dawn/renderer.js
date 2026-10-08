@@ -110,13 +110,13 @@ function talents(source, entries, kind, id, masterySource) {
       }
       const levels = [...card.querySelectorAll(":scope>.rd-row")].slice(1);
       levels.forEach((row, j) => {
-        if (!matching) put(row, ".rd-column>.rd-text:first-child", "N?vel " + (j + 1));
+        if (!matching) put(row, ".rd-column>.rd-text:first-child", "N\xEDvel " + (j + 1));
         put(row, ".rd-column>.rd-text:last-child", e.fields["level" + (j + 1)]);
       });
     } else {
       put(card, ":scope>.rd-text", e.fields.level1);
       card.querySelector(":scope>.rd-row:last-child")?.remove();
-      for (const key of ["special", "level2", "level3"]) note(card, key === "special" ? "Especial" : "N?vel " + key.slice(-1), e.fields[key]);
+      for (const key of ["special", "level2", "level3"]) note(card, key === "special" ? "Especial" : "N\xEDvel " + key.slice(-1), e.fields[key]);
     }
     note(card, "Observa\xE7\xF5es", e.fields.notes);
     panels.append(panel);
