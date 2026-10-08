@@ -927,10 +927,14 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
       } catch {
       }
       if (app && (app.protocol === "https:" || app.protocol === "http:" && ["localhost", "127.0.0.1"].includes(app.hostname))) {
-        let syncTheme2 = function() {
+        let fitViewport2 = function() {
+          const v = window.visualViewport;
+          if (!v) return;
+          Object.assign(dialog.style, { inset: "auto", margin: "0", left: v.offsetLeft + v.width * 0.01 + "px", top: v.offsetTop + v.height * 0.02 + "px", width: v.width * 0.98 + "px", height: v.height * 0.96 + "px" });
+        }, syncTheme2 = function() {
           frame.contentWindow?.postMessage({ type: "romance-dawn-theme", dark: document.body.classList.contains("darkmode") }, appURL.origin);
         };
-        var syncTheme = syncTheme2;
+        var fitViewport = fitViewport2, syncTheme = syncTheme2;
         const appURL = app;
         for (const [id, file] of [["rd-sheet-styles", "forum-sheet.css"], ["rd-sheet-fonts", "assets/fonts/fonts.css"]]) {
           if (document.getElementById(id)) continue;
@@ -952,7 +956,11 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
   #rd-bord-app-button:hover{background:var(--frio,#5b8f97);color:#fff;border-color:var(--quente,#cf7058);box-shadow:0 6px 20px var(--sombra,#9995)}
   #rd-bord-app-button:focus-visible{outline:2px solid var(--quente,#cf7058);outline-offset:4px}
   #rd-bord-app-dialog{background:var(--fundo,#e7e6e1);color:var(--frio,#5b8f97);border-color:var(--frio,#5b8f97)}
-  body.darkmode #rd-bord-app-dialog{color:#e7e6e1}`;
+  body.darkmode #rd-bord-app-dialog{color:#e7e6e1}
+  #rd-bord-app-dialog{overflow:hidden}
+  #rd-bord-app-dialog>header{position:relative;box-sizing:border-box;width:100%;min-width:0;height:52px;padding:0 8px 0 14px;gap:8px;white-space:normal}
+  #rd-bord-app-dialog>header>button{display:flex;align-items:center;justify-content:center;flex:0 0 44px;width:44px;min-width:44px;height:44px;padding:0;margin:0;line-height:1;touch-action:manipulation;position:relative;z-index:2}
+  #rd-bord-app-dialog iframe{height:calc(100% - 52px)}`;
         document.head.append(style);
         const button = document.createElement("button");
         button.type = "button";
@@ -974,6 +982,8 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
         header.append(close);
         dialog.append(header, frame);
         document.body.append(button, dialog);
+        window.visualViewport?.addEventListener("resize", fitViewport2);
+        window.visualViewport?.addEventListener("scroll", fitViewport2);
         frame.addEventListener("load", syncTheme2);
         installForumBridge(frame, appURL, authorized);
         window.addEventListener("message", (event) => {
@@ -983,6 +993,7 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
         });
         button.onclick = () => {
           if (!frame.getAttribute("src")) frame.src = appURL.href;
+          fitViewport2();
           dialog.showModal();
           document.documentElement.classList.add("rd-bord-modal-open");
           close.focus();

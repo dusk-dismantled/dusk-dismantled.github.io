@@ -516,6 +516,7 @@ async function main() {
   };
   $("#import-file-button").onclick = () => $("#file").click();
   $("#import-code").onclick = () => recover($("#import-text").value);
+  $("#import-close").onclick = $("#import-cancel").onclick = () => $("#import-dialog").close();
   $("#file").onchange = async () => {
     const file = $("#file").files?.[0];
     if (file) {
