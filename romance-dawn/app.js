@@ -149,7 +149,7 @@ function writePath(path, value) {
     node = node[b];
   }
   const last = bits.at(-1);
-  if (!Object.hasOwn(node, last)) throw new Error("Campo inv\xE1lido.");
+  if (!Object.hasOwn(node, last) && !(node === draft && ["capacityAttribute", "capacityOverride"].includes(last))) throw new Error("Campo inv\xE1lido.");
   node[last] = value;
 }
 function ruleLink(key) {
@@ -178,6 +178,7 @@ function collection(kind) {
     const past = kind === "pasts" ? pasts.find((p) => p.name.toLocaleLowerCase("pt-BR") === e.fields.name.trim().toLocaleLowerCase("pt-BR")) : null;
     html += "</div>" + (past ? '<p class="hint">Per\xEDcias: ' + escape(past.skills.join(", ")) + ". Recupera\xE7\xE3o: " + escape(past.recovery.join(" ou ")) + ".</p>" : "") + '<div class="entry-tools"><button data-action="move" data-kind="' + kind + '" data-index="' + index + '" data-direction="-1"' + (index === 0 ? " disabled" : "") + '>\u2191</button><button data-action="move" data-kind="' + kind + '" data-index="' + index + '" data-direction="1"' + (index === entries.length - 1 ? " disabled" : "") + '>\u2193</button><button data-action="duplicate" data-kind="' + kind + '" data-index="' + index + '">Duplicar</button><button data-action="remove" data-kind="' + kind + '" data-index="' + index + '">Remover</button></div></details>';
   }
+  if (mode === "create" && kind === "pasts" && draft.identity.generation === "Aspirantes") return html + '<p class="hint">Aspirantes iniciam sem Passados.' + (entries.length ? " Remova os Passados da gera\xE7\xE3o anterior antes de enviar a ficha." : "") + "</p>";
   return html + '<div class="section-actions"><button data-action="add" data-kind="' + kind + '">+ Adicionar ' + spec.label + "</button></div>";
 }
 function identity() {
@@ -213,7 +214,8 @@ function combat() {
   return html + collection("techniques");
 }
 function backpack() {
-  let html = "<h3>Recursos</h3>" + field("Berrys", "character.berries", draft.berries, "number");
+  let html = field("Atributo usado na capacidade", "character.capacityAttribute", draft.capacityAttribute ?? "For\xE7a", "text", [...ATTRIBUTES]) + field("Capacidade manual (opcional)", "character.capacityOverride", draft.capacityOverride ?? null, "number") + '<p class="hint">Capacidade autom\xE1tica: 4 + atributo escolhido. A capacidade manual substitui esse c\xE1lculo; deixe vazia para usar o autom\xE1tico. Registre a Maestria ou exce\xE7\xE3o nas observa\xE7\xF5es da ficha.</p>';
+  html += "<h3>Recursos</h3>" + field("Berrys", "character.berries", draft.berries, "number");
   for (const gem of GEMS) html += '<div class="gem-row"><strong>' + gem + "</strong>" + field(gem + " possu\xEDdos", "character.gems." + gem + ".owned", draft.gems[gem].owned, "number") + field(gem + " gastos", "character.gems." + gem + ".spent", draft.gems[gem].spent, "number") + "</div>";
   return html + field("Tempo de Inatividade dispon\xEDvel (dias)", "character.downtime", draft.downtime, "number") + '<div id="load-summary" class="meter-summary"></div><p class="hint">A carga ocupada \xE9 o total da linha, considerando a quantidade. Apenas a Mochila entra no limite; o Invent\xE1rio registra os itens guardados no navio ou em outro local.</p>' + collection("backpack") + collection("inventory");
 }
@@ -380,6 +382,7 @@ function action(target) {
       renderEditor();
     }
     if (act === "add") {
+      if (mode === "create" && kind === "pasts" && draft.identity.generation === "Aspirantes") throw new Error("Aspirantes iniciam sem Passados.");
       if (draft.collections[kind].length >= 100) throw new Error("Limite de 100 registros por se\xE7\xE3o.");
       draft.collections[kind].push(newEntry(kind));
       renderEditor();
@@ -395,6 +398,7 @@ function action(target) {
       persist();
     });
     if (act === "duplicate") {
+      if (mode === "create" && kind === "pasts" && draft.identity.generation === "Aspirantes") throw new Error("Aspirantes iniciam sem Passados.");
       if (draft.collections[kind].length >= 100) throw new Error("Limite de 100 registros por se\xE7\xE3o.");
       const e = newEntry(kind);
       e.fields = clone(draft.collections[kind][index].fields);
@@ -561,18 +565,20 @@ async function main() {
     const old = readPath(path);
     try {
       let value = input.value;
+      if (path === "character.capacityAttribute" && !value) value = "For\xE7a";
       if (typeof old === "boolean") value = input.checked;
-      else if (typeof old === "number" || old === null) {
+      else if (typeof old === "number" || old === null || path === "character.capacityOverride") {
         const required = path.startsWith("update.") || /\.attributes\.[^.]+\.(value|recovery)$/.test(path);
         value = input.value === "" ? required ? 0 : null : Number(input.value);
-        if (value !== null && !Number.isFinite(value)) throw new Error("Informe um n\xFAmero v\xE1lido.");
+        if (value !== null && (!Number.isFinite(value) || path === "character.capacityOverride" && value < 0)) throw new Error("Informe um n\xFAmero v\xE1lido.");
       }
       writePath(path, value);
       if (mode === "create") {
         if (/\.attributes\.[^.]+\.value$/.test(path) || path === "character.identity.generation" || path.includes(".complications.")) assertCreationAttributes(draft);
         syncCreationRecovery(draft);
       }
-      setPreview();
+      if (path === "character.identity.generation") renderEditor();
+      else setPreview();
       clearTimeout(timer);
       timer = setTimeout(() => {
         if (mode === "create") project.character = clone(draft);

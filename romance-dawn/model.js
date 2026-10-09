@@ -75,6 +75,8 @@ function validateCharacter(value) {
   text(c.skills);
   number(c.berries, 0, Number.MAX_SAFE_INTEGER, true);
   number(c.downtime, 0, 1e9, true);
+  if (c.capacityAttribute !== void 0 && !ATTRIBUTES.includes(c.capacityAttribute)) fail("Atributo de carga inv\xE1lido.");
+  if (c.capacityOverride !== void 0) number(c.capacityOverride, 0, 1e12, true);
   for (const k of GEMS) {
     number(c.gems?.[k]?.owned, 0, Number.MAX_SAFE_INTEGER, true);
     number(c.gems?.[k]?.spent, 0, Number.MAX_SAFE_INTEGER, true);
@@ -110,6 +112,8 @@ function validateCharacter(value) {
   clean.skills = c.skills;
   clean.berries = c.berries;
   clean.downtime = c.downtime;
+  if (c.capacityAttribute !== void 0) clean.capacityAttribute = c.capacityAttribute;
+  if (c.capacityOverride !== void 0) clean.capacityOverride = c.capacityOverride;
   clean.haki = c.haki.map((h) => ({ name: h.name, awakened: h.awakened, grade: h.grade, notes: h.notes }));
   for (const k of GEMS) clean.gems[k] = { owned: c.gems[k].owned, spent: c.gems[k].spent };
   for (const k of Object.keys(COLLECTIONS)) clean.collections[k] = c.collections[k].map((e) => ({ id: e.id, fields: Object.fromEntries(Object.keys(COLLECTIONS[k].fields).map((f) => [f, e.fields[f]])), ...e.attributeBonus !== void 0 ? { attributeBonus: e.attributeBonus } : {} }));
@@ -142,7 +146,7 @@ function parseProject(raw) {
 function loadTotal(c) {
   return c.collections.backpack.reduce((sum, e) => sum + Number(e.fields.load || 0), 0);
 }
-const capacity = (c) => 4 + c.attributes.For\u00E7a.value;
+const capacity = (c) => c.capacityOverride ?? 4 + c.attributes[c.capacityAttribute ?? "For\xE7a"].value;
 function creationLimits(c) {
   const index = GENERATIONS.indexOf(c.identity.generation);
   if (index < 0) fail("Escolha uma gera\xE7\xE3o v\xE1lida.");
@@ -159,7 +163,7 @@ function assertCreationAttributes(c) {
 }
 function syncCreationRecovery(c) {
   for (const k of ATTRIBUTES) c.attributes[k].recovery = k === "Destino" ? null : 4;
-  syncPastRecovery(c);
+  if (c.identity.generation !== "Aspirantes") syncPastRecovery(c);
 }
 function creationIssues(c) {
   const issues = [];
