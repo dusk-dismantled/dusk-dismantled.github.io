@@ -38,9 +38,9 @@ if (!document.getElementById('rd-bord-app-loader')) {
 
 O lançador adiciona o botão, o modal, as fontes e a folha de estilos externa da ficha. Não é necessário copiar o CSS para cada postagem nem alterar as cores da skin. HTML deve estar habilitado no fórum e no perfil do jogador.
 
-A instalação do botão ainda está pendente. Durante os testes, o padrão `staff` exige sessão ativa e associação ao grupo Staff (`g1`), verificada na seção de grupos de que o usuário é membro em `/groups`. Cor do nome e cargo de administrador não concedem acesso. Visitantes, outros membros e falhas na consulta deixam o botão oculto; o acesso é conferido novamente antes de preparar e confirmar uma postagem. As fontes e os estilos das fichas continuam disponíveis para todos os leitores.
+A criação está liberada para membros logados. A atualização exige associação ao grupo Staff (`g1`), verificada na seção de grupos de que o usuário é membro em `/groups`. Cor do nome e cargo de administrador não concedem acesso à atualização. As fontes e os estilos das fichas continuam disponíveis para todos os leitores.
 
-Para liberar futuramente o botão a todos os usuários logados, use `window.ROMANCE_DAWN_APP_ACCESS = 'members'`. Essa configuração controla o botão e o envio pelo fórum; o aplicativo estático no GitHub Pages continua público.
+Use `window.ROMANCE_DAWN_APP_ACCESS = 'members'` para o acesso ao botão; a atualização continua exclusiva à Staff. O aplicativo estático no GitHub Pages continua público.
 
 ## Envio de fichas
 
