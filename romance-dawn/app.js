@@ -13,6 +13,7 @@ const steps = [["identity", "Identidade"], ["attributes", "Atributos"], ["origin
 let project = freshProject(), draft = clone(project.character), update = proposal(), mode = "create", step = 0, template = "", sheetCSS = "", previewFaction = "neutral", timer, storageAvailable = true, confirmAction = null, confirmNeedsApproval = false;
 let rules = null, pasts = [];
 let forumConnected = false, publicationPending = null, publicationStatus = "", publicationURL = "";
+let canUpdate = window.parent === window && ["localhost", "127.0.0.1"].includes(location.hostname);
 const rootURL = "https://romance-dawn-oprpg.forumeiros.com";
 const ruleURLs = { identity: "/t57-01-geracao", attributes: "/t67-04-atributos", origins: "/t68-05-passados", masteries: "/t78-09-maestrias", combat: "/t77-14-trilhas-de-poder", backpack: "/t75-17-mochila", update: "/t4-02-gemas" };
 function toast(message) {
@@ -275,6 +276,11 @@ function historyHTML() {
   return project.history.length ? [...project.history].reverse().map((h) => '<details class="history-record"><summary>' + escape(h.title) + " \xB7 " + escape(new Date(h.date).toLocaleDateString("pt-BR")) + "</summary><pre>" + escape(h.summary) + '</pre><button data-action="download-summary" data-id="' + escape(h.id) + '">Baixar resumo</button></details>').join("") + '<button data-action="undo-update">Desfazer \xFAltimo registro local</button>' : '<p class="hint">O di\xE1rio ainda n\xE3o tem aventuras registradas.</p>';
 }
 function renderEditor() {
+  if (mode === "update" && !canUpdate) {
+    $("#workspace").hidden = true;
+    $("#launcher").hidden = false;
+    return;
+  }
   $("#module-title").textContent = mode === "create" ? "Criar Vivre Card" : "Atualizar Vivre Card";
   $("#steps").innerHTML = steps.map(([key2, label2], i) => '<button data-action="step" data-index="' + i + '"' + (i === step ? ' aria-current="step"' : "") + ">" + String(i + 1).padStart(2, "0") + " " + (mode === "update" && key2 === "review" ? "Registro" : label2) + "</button>").join("");
   if (mode === "create") syncCreationRecovery(draft);
@@ -493,8 +499,11 @@ async function main() {
   void previewDoc.fonts.ready.then(resizePreview);
   restore();
   $("#preview-faction").innerHTML = Object.entries(FACTIONS).filter(([key]) => key !== "auto").map(([key, label]) => '<option value="' + key + '"' + (key === "neutral" ? " selected" : "") + ">" + label + "</option>").join("");
+  $("#update-module").hidden = !canUpdate;
   $("#create-module").onclick = () => enter("create");
-  $("#update-module").onclick = () => enter("update");
+  $("#update-module").onclick = () => {
+    if (canUpdate) enter("update");
+  };
   $("#home").onclick = $("#brand").onclick = () => {
     $("#workspace").hidden = true;
     $("#launcher").hidden = false;
@@ -604,6 +613,12 @@ async function main() {
     if (event.origin !== FORUM_ORIGIN) return;
     if (event.data?.type === "romance-dawn-forum-context") {
       forumConnected = event.data.connected === true;
+      canUpdate = forumConnected && event.data.canUpdate === true;
+      $("#update-module").hidden = !canUpdate;
+      if (mode === "update" && !canUpdate) {
+        $("#workspace").hidden = true;
+        $("#launcher").hidden = false;
+      }
       refreshPublicationStatus();
     }
     if (event.data?.type === "romance-dawn-publication-result" && event.data.requestId === publicationPending) {

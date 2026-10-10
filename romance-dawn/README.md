@@ -26,7 +26,7 @@ Em **Painel de administração → Módulos → HTML e JavaScript → Gestão do
 
 ```javascript
 window.ROMANCE_DAWN_APP_URL = 'https://dusk-dismantled.github.io/romance-dawn/index.html';
-window.ROMANCE_DAWN_APP_ACCESS = 'staff';
+window.ROMANCE_DAWN_APP_ACCESS = 'members';
 if (!document.getElementById('rd-bord-app-loader')) {
   var script = document.createElement('script');
   script.id = 'rd-bord-app-loader';
@@ -80,3 +80,5 @@ Abra http://127.0.0.1:4173. `RD_APP_PORT` permite mudar a porta. Não abra `inde
 Fontes TypeScript: `src/sheet-app`. O build gera os módulos e o lançador empacotado. O modelo de referência permanece em `design/character-sheet`; após alterá-lo, execute `node design/character-sheet/build-html.cjs` antes do build do aplicativo.
 
 As regras consultadas ficam em `inspections/character-sheet/app-rules.json`. Os formulários de f12 e f22 foram verificados com a sessão real em 08/10/2026, sem enviar postagem de teste. Os testes de envio usam um fórum simulado em outra origem.
+
+Criação liberada para membros logados. A atualização permanece exclusiva à Staff: associação ao grupo g1 é conferida para exibir o módulo e antes de preparar e confirmar seu envio. O aplicativo hospedado diretamente não exibe atualização; o servidor local mantém os módulos para desenvolvimento.
