@@ -446,7 +446,7 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
       panel.className = kind === "masteries" ? "rd-talent-panel" : "rd-complication-panel";
       const card = panel.firstElementChild, header = card.firstElementChild;
       put(header, ":scope>.rd-text", e.fields.name);
-      put(header, ".rd-row .rd-text", (kind === "masteries" ? "N\xCDVEL ADQUIRIDO: " : "") + (e.fields.level || String.fromCharCode(8212)));
+      put(header, ":scope>.rd-row>.rd-text", (kind === "masteries" ? "N\xCDVEL ADQUIRIDO: " : "") + (e.fields.level || String.fromCharCode(8212)));
       if (kind === "masteries") {
         card.querySelector(":scope>.rd-column")?.remove();
         if (e.fields.special) {
