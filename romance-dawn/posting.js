@@ -81,10 +81,20 @@ function publicationRejection(doc) {
   }
   return null;
 }
+function publicationChallenge(doc, forum) {
+  const copy = doc.body?.cloneNode(true);
+  copy?.querySelectorAll("script,style,input,textarea").forEach((n) => n.remove());
+  if (!/verificação anti-spam/i.test(copy?.textContent || "")) return false;
+  return [...doc.forms].some((form) => {
+    const url = new URL(form.getAttribute("action") || "/post", FORUM_ORIGIN);
+    return url.origin === FORUM_ORIGIN && url.pathname === "/post" && form.method === "post" && form.querySelector('[name="f"]')?.value === String(forum) && !!form.querySelector('[name="post_confirm"]');
+  });
+}
 export {
   FORUM_ORIGIN,
   postingForm,
   preparePublication,
+  publicationChallenge,
   publicationRejection,
   publishedTopic
 };

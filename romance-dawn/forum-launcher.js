@@ -771,6 +771,15 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
     }
     return null;
   }
+  function publicationChallenge(doc, forum) {
+    const copy = doc.body?.cloneNode(true);
+    copy?.querySelectorAll("script,style,input,textarea").forEach((n) => n.remove());
+    if (!/verificação anti-spam/i.test(copy?.textContent || "")) return false;
+    return [...doc.forms].some((form) => {
+      const url = new URL(form.getAttribute("action") || "/post", FORUM_ORIGIN);
+      return url.origin === FORUM_ORIGIN && url.pathname === "/post" && form.method === "post" && form.querySelector('[name="f"]')?.value === String(forum) && !!form.querySelector('[name="post_confirm"]');
+    });
+  }
 
   // src/sheet-app/forum-bridge.ts
   function installForumBridge(frame, app, authorized) {
@@ -942,7 +951,88 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
               remember(publication.key, { status: "sending" });
               dispatched = true;
               const response = await fetch("/post", { method: "POST", credentials: "same-origin", body: multipart });
-              const doc = new DOMParser().parseFromString(await response.text(), "text/html"), url = publishedTopic(doc, response.url, publication.characterId);
+              const doc = new DOMParser().parseFromString(await response.text(), "text/html");
+              let url = publishedTopic(doc, response.url, publication.characterId);
+              if (!url && publicationChallenge(doc, publication.forum)) {
+                status.textContent = "A Forumeiros exige uma verifica\xE7\xE3o anti-spam. Continue na janela do f\xF3rum e conclua a verifica\xE7\xE3o pelo bot\xE3o Salvar. Sua ficha ainda n\xE3o foi publicada.";
+                confirm.hidden = true;
+                const native = document.createElement("button");
+                native.type = "button";
+                native.id = "rd-publication-native";
+                native.textContent = "Continuar verifica\xE7\xE3o no f\xF3rum";
+                dialog.append(native);
+                cancel.disabled = false;
+                cancel.onclick = () => dialog.close();
+                url = await new Promise((resolve, reject) => {
+                  let timer, timeout, finished = false;
+                  const finish = (value, error) => {
+                    if (finished) return;
+                    finished = true;
+                    clearInterval(timer);
+                    clearTimeout(timeout);
+                    dialog.removeEventListener("close", closed);
+                    native.remove();
+                    if (value) resolve(value);
+                    else reject(error || new Error("Confira a publica\xE7\xE3o na \xE1rea de avalia\xE7\xE3o antes de tentar novamente."));
+                  };
+                  const closed = () => finish(void 0, new Error("Verifica\xE7\xE3o interrompida. Confira a \xE1rea de avalia\xE7\xE3o antes de repetir o envio. Seu rascunho continua salvo."));
+                  dialog.addEventListener("close", closed);
+                  native.onclick = async (click2) => {
+                    if (!click2.isTrusted || native.disabled) return;
+                    const name = "rd-publication-" + crypto.randomUUID(), popup = window.open("about:blank", name);
+                    if (!popup) {
+                      status.textContent = "Permita a abertura de janelas neste f\xF3rum e clique novamente em Continuar verifica\xE7\xE3o.";
+                      return;
+                    }
+                    native.disabled = true;
+                    try {
+                      if (!await authorized(kind)) throw new Error("Sua sess\xE3o expirou. Entre novamente no f\xF3rum.");
+                      const fresh = await nativeForm(publication), form = document.createElement("form");
+                      form.method = "post";
+                      form.action = FORUM_ORIGIN + "/post";
+                      form.target = name;
+                      form.enctype = "multipart/form-data";
+                      form.hidden = true;
+                      for (const [key, value] of fresh) {
+                        const input = document.createElement("input");
+                        input.type = "hidden";
+                        input.name = key;
+                        input.value = value;
+                        form.append(input);
+                      }
+                      document.body.append(form);
+                      form.submit();
+                      form.remove();
+                      status.textContent = "Conclua a verifica\xE7\xE3o anti-spam na janela do f\xF3rum. A confirma\xE7\xE3o da publica\xE7\xE3o aparecer\xE1 aqui.";
+                      timer = setInterval(() => {
+                        try {
+                          if (popup.closed) {
+                            finish(void 0, new Error("A janela do f\xF3rum foi fechada. Confira se o t\xF3pico foi criado antes de tentar novamente."));
+                            return;
+                          }
+                          if (popup.location.origin !== FORUM_ORIGIN) return;
+                          const result2 = publishedTopic(popup.document, popup.location.href, publication.characterId);
+                          if (result2) {
+                            finish(result2);
+                            return;
+                          }
+                          const rejection2 = publicationRejection(popup.document);
+                          if (rejection2) {
+                            forget(publication.key);
+                            dispatched = false;
+                            finish(void 0, new Error("O f\xF3rum recusou o envio: " + rejection2));
+                          }
+                        } catch {
+                        }
+                      }, 500);
+                      timeout = setTimeout(() => finish(void 0, new Error("A verifica\xE7\xE3o ainda n\xE3o foi confirmada. Confira o t\xF3pico no f\xF3rum antes de tentar novamente.")), 6e5);
+                    } catch (error) {
+                      popup.close();
+                      finish(void 0, error);
+                    }
+                  };
+                });
+              }
               const rejection = !url && publicationRejection(doc);
               if (rejection) {
                 forget(publication.key);
