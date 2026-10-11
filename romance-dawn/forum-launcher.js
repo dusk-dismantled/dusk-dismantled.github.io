@@ -535,7 +535,10 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
   function el(tag2, cls = "", value) {
     const node = document.createElement(tag2);
     node.className = cls;
-    if (value !== void 0) node.textContent = value || "\u2014";
+    if (value !== void 0) {
+      node.textContent = value || "\u2014";
+      if (/[\r\n]/.test(value)) node.classList.add("rd-field-text");
+    }
     return node;
   }
   function put(root, selector, value) {
