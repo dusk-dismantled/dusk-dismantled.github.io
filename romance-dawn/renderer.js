@@ -23,7 +23,10 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
 .rd-sheet .rd-nickname{font-size:14px;max-height:none;overflow:visible}
 .rd-sheet .rd-header h1{max-height:none;overflow:visible}
 .rd-sheet .rd-dream-classification{font:400 13px/1.55 'Open Sans',Verdana,sans-serif;color:var(--rd-muted);white-space:pre-wrap;overflow-wrap:anywhere}
-.rd-sheet .rd-dream-text{white-space:pre-wrap}
+.rd-sheet .rd-identity-summary{min-width:0;height:auto!important;max-height:none}
+.rd-sheet .rd-identity-summary>.rd-column:first-child{flex:0 0 auto!important;height:auto!important;max-height:none;overflow:visible}
+.rd-sheet .rd-identity-summary>.rd-column:first-child>.rd-text,.rd-sheet .rd-dream-classification{flex-shrink:0;max-height:none;overflow:visible}
+.rd-sheet .rd-dream-text{font-size:24px!important;white-space:pre-wrap;overflow-wrap:anywhere}
 .rd-sheet .rd-app-empty{padding:16px;color:var(--rd-muted)}
 ` + NAVIGATION_CSS;
 function el(tag, cls = "", value) {
