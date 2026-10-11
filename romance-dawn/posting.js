@@ -69,9 +69,19 @@ function publishedTopic(doc, responseURL, characterId) {
   }
   return null;
 }
+function publicationRejection(doc) {
+  for (const node of doc.querySelectorAll('.errorbox,.error-message,.error,.msgdie,[role="alert"]')) {
+    const copy = node.cloneNode(true);
+    copy.querySelectorAll("script,style,input,textarea,select").forEach((n) => n.remove());
+    const text = (copy.textContent || "").replace(/\s+/g, " ").trim();
+    if (text && /(?:erreur|error|erro|não|impossível|limite|aguard|esper|captcha|permiss|interdit|too (?:long|short)|not allowed)/i.test(text)) return text.slice(0, 1200);
+  }
+  return null;
+}
 export {
   FORUM_ORIGIN,
   postingForm,
   preparePublication,
+  publicationRejection,
   publishedTopic
 };
