@@ -374,6 +374,10 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
 .rd-sheet .rd-identity-summary>.rd-column:first-child{flex:0 0 auto!important;height:auto!important;max-height:none;overflow:visible}
 .rd-sheet .rd-identity-summary>.rd-column:first-child>.rd-text,.rd-sheet .rd-dream-classification{flex-shrink:0;max-height:none;overflow:visible}
 .rd-sheet .rd-dream-text{font-size:24px!important;white-space:pre-wrap;overflow-wrap:anywhere}
+.rd-sheet .rd-header-art:has(>.rd-cover-image){background-image:none;overflow:hidden}
+.rd-sheet .rd-cover-image{display:block;position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover;border-radius:inherit;mix-blend-mode:luminosity}
+.rd-sheet .rd-header-art:has(>.rd-cover-image)::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,var(--rd-blue),transparent 80%),linear-gradient(0deg,var(--rd-wine),transparent 65%);pointer-events:none}
+.rd-sheet .rd-portrait-image{display:block;width:100%;height:100%;max-width:none;object-fit:cover;border-radius:50%}
 .rd-sheet .rd-app-empty{padding:16px;color:var(--rd-muted)}
 ` + NAVIGATION_CSS;
   function el(tag, cls = "", value) {
@@ -503,6 +507,16 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
       const target = root.querySelector(selector);
       const value = c.identity[key];
       target.style.setProperty(variable, value ? "url(" + JSON.stringify(value) + ")" : "none");
+    }
+    for (const [selector, key, cls] of [[".rd-header-art", "cover", "rd-cover-image"], [".rd-portrait", "portrait", "rd-portrait-image"]]) {
+      const target = root.querySelector(selector), value = c.identity[key];
+      target.querySelectorAll("img").forEach((n) => n.remove());
+      if (value) {
+        const image = el("img", cls);
+        image.src = value;
+        image.alt = key === "portrait" ? "Retrato de " + c.identity.name : "";
+        target.append(image);
+      }
     }
     const identity = root.querySelector(".rd-panel-identity");
     for (const [label, key] of [["ESP\xC9CIE", "species"], ["IDADE", "age"], ["GERA\xC7\xC3O", "generation"], ["FAC\xC7\xC3O / TRIPULA\xC7\xC3O", "crew"], ["TIER", "tier"], ["RECOMPENSA", "bounty"], ["SONHO", "dreamText"], ["RISADA", "laugh"], ["LOCALIZA\xC7\xC3O ATUAL", "location"]]) labeled(identity, label, c.identity[key]);
