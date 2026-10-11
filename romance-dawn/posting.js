@@ -1,6 +1,6 @@
 import { assertCreationAttributes, creationIssues, parseProject, syncCreationRecovery } from "./model.js";
 import { catalogIssues, pastCatalog } from "./catalog.js";
-import { exportHTML } from "./renderer.js";
+import { exportCompactHTML } from "./compact.js";
 const FORUM_ORIGIN = "https://romance-dawn-oprpg.forumeiros.com";
 const escape = (s) => s.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
 function preparePublication(value, template, rules) {
@@ -21,7 +21,7 @@ function preparePublication(value, template, rules) {
   const forum = request.kind === "creation" ? 12 : 22;
   const title = (request.kind === "creation" ? "[Ficha] " : "[Atualiza\xE7\xE3o] ") + c.identity.name.trim();
   const summary = request.kind === "update" ? '<section class="rd-update-summary"><h2>' + escape(last.title) + "</h2><p>Refer\xEAncia da aprova\xE7\xE3o: " + escape(last.reference) + "</p><pre>" + escape(last.summary) + "</pre></section>" : "";
-  return { key: request.kind + ":" + (request.kind === "creation" ? c.id : last.id), title, message: (summary + exportHTML(project, template)).replace(/\r\n|\r|\n/g, "&#10;"), forum, destination: request.kind === "creation" ? "Cria\xE7\xE3o de Personagens" : "Atualiza\xE7\xF5es", characterId: c.id };
+  return { key: request.kind + ":" + (request.kind === "creation" ? c.id : last.id), title, message: (summary + exportCompactHTML(project)).replace(/\r\n|\r|\n/g, "&#10;"), forum, destination: request.kind === "creation" ? "Cria\xE7\xE3o de Personagens" : "Atualiza\xE7\xF5es", characterId: c.id };
 }
 function postingForm(doc, forum, publication) {
   const form = [...doc.forms].find((f) => new URL(f.getAttribute("action") || "", FORUM_ORIGIN).pathname === "/post" && f.querySelector('textarea[name="message"]'));
@@ -57,7 +57,7 @@ function publishedTopic(doc, responseURL, characterId) {
     }
   };
   const direct = topic(responseURL);
-  if (direct && [...doc.querySelectorAll(".rd-sheet")].some((n) => n.id === characterId)) return direct;
+  if (direct && ([...doc.querySelectorAll(".rd-sheet")].some((n) => n.id === characterId) || [...doc.querySelectorAll('ficha[versao="2"]>id')].some((n) => n.textContent === characterId))) return direct;
   const text = doc.body?.textContent || "";
   if (doc.querySelector('form textarea[name="message"]') || /mensagem[\s\S]{0,30}não[\s\S]{0,40}(?:enviad|publicad|registrad)/i.test(text)) return null;
   if (!/(?:mensagem|message)[\s\S]{0,100}(?:enviad|publicad|registrad|posted|entered)|tópico[\s\S]{0,60}criado/i.test(text)) return null;

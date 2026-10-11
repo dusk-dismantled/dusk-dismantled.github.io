@@ -1,4 +1,5 @@
 import { ATTRIBUTES, COLLECTIONS, DREAMS, GEMS, GRADES, HAKI_DICE, capacity, loadTotal, parseProject, validateCharacter } from "./model.js";
+import { compactRoot, importCompactHTML } from "./compact.js";
 const NAVIGATION_CSS = Array.from({ length: 100 }, (_, i) => `
 .rd-sheet .rd-app-selector>input:nth-of-type(${i + 1}):checked~.rd-talent-panels>:nth-child(${i + 1}){display:block}
 .rd-sheet .rd-app-selector>input:nth-of-type(${i + 1}):checked~.rd-talent-list>label:nth-child(${i + 1}){background:linear-gradient(135deg,var(--rd-blue),var(--rd-wine));border-color:var(--rd-gold)}
@@ -385,7 +386,13 @@ async function portableState(state) {
 }
 async function importHTML(raw, template) {
   if (new TextEncoder().encode(raw).length > 5e6) throw new Error("HTML maior que 5 MB.");
-  const doc = new DOMParser().parseFromString(raw, "text/html"), sheets = doc.querySelectorAll(".rd-sheet[data-rd-state]");
+  const doc = new DOMParser().parseFromString(raw, "text/html"), compact = compactRoot(doc);
+  if (compact) {
+    const project2 = importCompactHTML(compact);
+    renderCharacter(project2.character, template);
+    return project2;
+  }
+  const sheets = doc.querySelectorAll(".rd-sheet[data-rd-state]");
   if (sheets.length !== 1) throw new Error("Cole uma \xFAnica ficha gerada pelo aplicativo. Para modelos anteriores, use o editor e preencha os dados.");
   const root = sheets[0], expected = root.dataset.rdChecksum, state = root.dataset.rdState;
   delete root.dataset.rdChecksum;
