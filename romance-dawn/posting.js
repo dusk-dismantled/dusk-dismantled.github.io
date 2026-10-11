@@ -70,6 +70,9 @@ function publishedTopic(doc, responseURL, characterId) {
   return null;
 }
 function publicationRejection(doc) {
+  const body = doc.body?.cloneNode(true);
+  body?.querySelectorAll("script,style,input,textarea,select,.rd-sheet").forEach((n) => n.remove());
+  if (/A largura da sua mensagem ultrapassa o limite autorizado\./i.test(body?.textContent || "")) return "A largura da sua mensagem ultrapassa o limite autorizado.";
   for (const node of doc.querySelectorAll('.errorbox,.error-message,.error,.msgdie,[role="alert"]')) {
     const copy = node.cloneNode(true);
     copy.querySelectorAll("script,style,input,textarea,select").forEach((n) => n.remove());

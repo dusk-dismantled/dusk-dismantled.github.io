@@ -325,19 +325,59 @@ function exportHTML(project, template) {
   if (new TextEncoder().encode(html).length > 5e6) throw new Error("A ficha excede 5 MB. Reduza os textos antes de exportar.");
   return html;
 }
-function importHTML(raw, template) {
+async function compactHTML(raw) {
+  const doc = new DOMParser().parseFromString(raw, "text/html"), root = doc.querySelector(".rd-sheet[data-rd-state]");
+  if (!root) throw new Error("Ficha sem dados de recupera\xE7\xE3o.");
+  const data = decode(root.dataset.rdState);
+  const compressed = await new Response(new Blob([data]).stream().pipeThrough(new CompressionStream("gzip"))).arrayBuffer();
+  const bytes = new Uint8Array(compressed);
+  let binary = "";
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  const state = "gzip:" + btoa(binary);
+  if (state.length < root.dataset.rdState.length) root.dataset.rdState = state;
+  delete root.dataset.rdChecksum;
+  root.dataset.rdChecksum = checksum(root.outerHTML);
+  return oneLine(doc.body.innerHTML);
+}
+async function portableState(state) {
+  if (!state.startsWith("gzip:")) return decode(state);
+  const bytes = Uint8Array.from(atob(state.slice(5)), (c) => c.charCodeAt(0));
+  const reader = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip")).getReader();
+  const chunks = [];
+  let size = 0;
+  try {
+    for (; ; ) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      size += value.length;
+      if (size > 5e6) throw new Error("Dados de recupera\xE7\xE3o maiores que 5 MB.");
+      chunks.push(value);
+    }
+  } finally {
+    await reader.cancel();
+  }
+  const decoded = new Uint8Array(size);
+  let offset = 0;
+  for (const chunk of chunks) {
+    decoded.set(chunk, offset);
+    offset += chunk.length;
+  }
+  return new TextDecoder("utf-8", { fatal: true }).decode(decoded);
+}
+async function importHTML(raw, template) {
   if (new TextEncoder().encode(raw).length > 5e6) throw new Error("HTML maior que 5 MB.");
   const doc = new DOMParser().parseFromString(raw, "text/html"), sheets = doc.querySelectorAll(".rd-sheet[data-rd-state]");
   if (sheets.length !== 1) throw new Error("Cole uma \xFAnica ficha gerada pelo aplicativo. Para modelos anteriores, use o editor e preencha os dados.");
   const root = sheets[0], expected = root.dataset.rdChecksum, state = root.dataset.rdState;
   delete root.dataset.rdChecksum;
   if (!expected || checksum(root.outerHTML) !== expected) throw new Error("O HTML foi alterado depois da exporta\xE7\xE3o. Importe o backup JSON para n\xE3o perder edi\xE7\xF5es.");
-  const project = parseProject(decode(state));
+  const project = parseProject(await portableState(state));
   renderCharacter(project.character, template);
   return project;
 }
 export {
   APP_SHEET_CSS,
+  compactHTML,
   exportHTML,
   importHTML,
   renderCharacter

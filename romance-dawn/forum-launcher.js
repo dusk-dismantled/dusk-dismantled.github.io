@@ -657,6 +657,9 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
   function encode(s) {
     return btoa(Array.from(new TextEncoder().encode(s), (b) => String.fromCharCode(b)).join(""));
   }
+  function decode(s) {
+    return new TextDecoder("utf-8", { fatal: true }).decode(Uint8Array.from(atob(s), (c) => c.charCodeAt(0)));
+  }
   function oneLine(s) {
     return s.replace(/\r\n|\r|\n/g, "&#10;");
   }
@@ -668,6 +671,20 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
     const html = oneLine(root.outerHTML);
     if (new TextEncoder().encode(html).length > 5e6) throw new Error("A ficha excede 5 MB. Reduza os textos antes de exportar.");
     return html;
+  }
+  async function compactHTML(raw) {
+    const doc = new DOMParser().parseFromString(raw, "text/html"), root = doc.querySelector(".rd-sheet[data-rd-state]");
+    if (!root) throw new Error("Ficha sem dados de recupera\xE7\xE3o.");
+    const data = decode(root.dataset.rdState);
+    const compressed = await new Response(new Blob([data]).stream().pipeThrough(new CompressionStream("gzip"))).arrayBuffer();
+    const bytes = new Uint8Array(compressed);
+    let binary = "";
+    for (const byte of bytes) binary += String.fromCharCode(byte);
+    const state = "gzip:" + btoa(binary);
+    if (state.length < root.dataset.rdState.length) root.dataset.rdState = state;
+    delete root.dataset.rdChecksum;
+    root.dataset.rdChecksum = checksum(root.outerHTML);
+    return oneLine(doc.body.innerHTML);
   }
 
   // src/sheet-app/posting.ts
@@ -740,6 +757,9 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
     return null;
   }
   function publicationRejection(doc) {
+    const body = doc.body?.cloneNode(true);
+    body?.querySelectorAll("script,style,input,textarea,select,.rd-sheet").forEach((n) => n.remove());
+    if (/A largura da sua mensagem ultrapassa o limite autorizado\./i.test(body?.textContent || "")) return "A largura da sua mensagem ultrapassa o limite autorizado.";
     for (const node of doc.querySelectorAll('.errorbox,.error-message,.error,.msgdie,[role="alert"]')) {
       const copy = node.cloneNode(true);
       copy.querySelectorAll("script,style,input,textarea,select").forEach((n) => n.remove());
@@ -777,6 +797,13 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
       }
     };
     const connected = () => location.origin === FORUM_ORIGIN;
+    const center = (dialog) => {
+      dialog.style.setProperty("position", "fixed", "important");
+      dialog.style.setProperty("inset", "0", "important");
+      dialog.style.setProperty("margin", "auto", "important");
+      dialog.style.setProperty("box-sizing", "border-box", "important");
+      dialog.style.setProperty("overflow", "auto", "important");
+    };
     const context = async () => {
       const canUpdate = await authorized("update");
       frame.contentWindow?.postMessage({ type: "romance-dawn-forum-context", connected: connected(), canUpdate }, app.origin);
@@ -817,6 +844,7 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
             dialog = document.createElement("dialog");
             dialog.id = "rd-publication-recovery";
             dialog.style.cssText = "max-width:520px;padding:24px;border-radius:12px;background:#272633;color:#f5eee1;font:14px/1.6 Verdana,sans-serif";
+            center(dialog);
             const explanation = document.createElement("p");
             explanation.textContent = "Confira se sua ficha j\xE1 aparece na \xE1rea de avalia\xE7\xE3o. Liberar outro envio sem conferir pode criar um t\xF3pico duplicado.";
             const area = document.createElement("a");
@@ -853,11 +881,14 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
             dialog.showModal();
             return;
           }
+          publication.message = await compactHTML(publication.message);
+          if (new TextEncoder().encode(publication.message).length > 65e3) throw new Error("A ficha excede o limite seguro de 65.000 bytes para postagem, mesmo ap\xF3s compacta\xE7\xE3o. Reduza os textos antes de enviar. Seu rascunho continua salvo.");
           await nativeForm(publication);
           dialog = document.createElement("dialog");
           dialog.id = "rd-publication-confirm";
           dialog.setAttribute("aria-label", "Conferir envio ao f\xF3rum");
           dialog.style.cssText = "width:960px;max-width:96vw;max-height:94vh;padding:20px;border:1px solid #e6bd78;border-radius:12px;background:#272633;color:#f5eee1;font:13px/1.6 Verdana,sans-serif";
+          center(dialog);
           const title = document.createElement("h2");
           title.textContent = publication.title;
           const info = document.createElement("p");

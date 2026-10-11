@@ -334,11 +334,11 @@ function backup() {
     toast(e.message);
   }
 }
-function recover(raw) {
+async function recover(raw) {
   try {
     let next, nextDraft, nextUpdate;
     const json = raw.trim().startsWith("{");
-    next = json ? parseProject(raw) : importHTML(raw, template);
+    next = json ? parseProject(raw) : await importHTML(raw, template);
     if (json) {
       const extra = JSON.parse(raw);
       if (extra.pending) {
