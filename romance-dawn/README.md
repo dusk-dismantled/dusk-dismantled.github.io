@@ -70,7 +70,7 @@ Os custos automáticos cobrem Atributos e Dados de Recuperação. Outros benefí
 
 ## Desenvolvimento local
 
-Novas postagens usam `<ficha versao="2">` com dados em tags em português, sem classes, estilos ou cópia Base64. Identidade fica em `<identidade>`; atributos, vitalidade, recursos e registros têm seus próprios blocos. Cada lista usa `<item>`, com `<id>` e `<dados>`. `nulo=""` distingue valores não informados de zero. URLs de capa e retrato são textos nas tags correspondentes. Os textos são escapados e as quebras internas viram `&#10;`: a postagem continua em linha única.
+Novas postagens usam `<ficha versao="2">` com dados em tags em português, sem classes, estilos ou cópia Base64. Identidade fica em `<identidade>`; atributos, vitalidade, recursos e registros têm seus próprios blocos. Cada lista usa `<item>`, com `<id>` e `<dados>`. `nulo=""` distingue valores não informados de zero. URLs de capa e retrato são textos nas tags correspondentes. Os textos são escapados e as quebras internas viram `<br>` (o leitor também aceita `&#10;`): a postagem continua em linha única.
 
 O lançador monta essas tags com o renderizador original, para membros e visitantes, incluindo mensagens inseridas dinamicamente. JavaScript precisa estar ativo para montar o formato novo. Fichas anteriores permanecem intactas. A recuperação aceita HTML antigo, snapshots gzip, tags compactas, o HTML já montado e backups JSON. O backup JSON continua sendo o arquivo que preserva o histórico de execução; a postagem armazena o estado atual. O limite de postagem permanece: conteúdos que excedem 65.000 bytes são bloqueados antes do envio.
 

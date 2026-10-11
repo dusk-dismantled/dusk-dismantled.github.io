@@ -351,7 +351,12 @@
   // src/sheet-app/compact.ts
   var names = { identity: "identidade", faction: "faccao", attributes: "atributos", vitals: "vitalidade", fame: "fama", influence: "influencia", skills: "pericias", berries: "berries", gems: "gemas", downtime: "inatividade", collections: "registros", capacityAttribute: "atributodecarga", capacityOverride: "cargamanual", name: "nome", nickname: "alcunha", age: "idade", species: "especie", generation: "geracao", crew: "tripulacao", bounty: "recompensa", dream: "classificacao", dreamText: "sonho", laugh: "risada", location: "localizacao", personality: "personalidade", appearance: "aparencia", history: "historia", territories: "territorios", cover: "capa", portrait: "retrato", value: "valor", recovery: "recuperacao", health: "saude", healthIncreases: "aumentosdesaude", movement: "deslocamento", swimming: "natacao", awakened: "despertou", grade: "grau", notes: "observacoes", owned: "possuido", spent: "gasto", pasts: "passados", professions: "oficios", styles: "estilos", masteries: "maestrias", complications: "complicacoes", extras: "extras", feats: "proezas", animalTraits: "tracosanimais", trails: "trilhas", techniques: "tecnicas", nakamas: "nakamas", backpack: "mochila", inventory: "inventario", fields: "dados", attributeBonus: "bonusdeatributos", category: "categoria", level: "nivel", special: "especial", level1: "nivel1", level2: "nivel2", level3: "nivel3", source: "origem", cost: "custo", effect: "efeito", rank: "rank", sources: "fontes", pa: "pa", range: "alcance", duration: "duracao", challenge: "desafio", damageDice: "dadosdedano", damageTypes: "tiposdedano", bond: "vinculo", traits: "tracos", quantity: "quantidade", load: "carga" };
   var tag = (key) => names[key] || key.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-  var escape = (s) => s.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replace(/\r\n|\r|\n/g, "&#10;");
+  var escape = (s) => s.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replace(/\r\n|\r|\n/g, "<br>");
+  function fieldText(node) {
+    const copy = node.cloneNode(true);
+    copy.querySelectorAll("br").forEach((br) => br.replaceWith("\n"));
+    return copy.textContent || "";
+  }
   function write(key, value) {
     if (Array.isArray(value) && !value.length) return "";
     const name = tag(key);
@@ -386,7 +391,7 @@
         return node.textContent === "true";
       }
       if (typeof base === "number" || base === null) return node.textContent?.trim() ? Number(node.textContent) : null;
-      return node.textContent || "";
+      return fieldText(node);
     }
     const defaults = freshCharacter();
     if (!root.querySelector(":scope>id")) throw new Error("Identificador da ficha ausente.");
@@ -507,6 +512,7 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
 .rd-sheet .rd-app-narrative>.rd-column{flex:0 1 auto!important;justify-content:flex-start!important}
 .rd-sheet .rd-narrative-text,.rd-sheet .rd-record-text{white-space:pre-wrap;overflow-wrap:anywhere}
 .rd-sheet .rd-text,.rd-sheet h1,.rd-sheet h3{overflow-wrap:anywhere}
+.rd-sheet .rd-field-text{white-space:pre-wrap}
 .rd-sheet .rd-entry-card+.rd-entry-card{margin-top:14px}
 .rd-sheet .rd-app-past-rows{display:flex;flex-direction:column;gap:16px}
 .rd-sheet .rd-app-selector>.rd-talent-panels>div>.rd-column>.rd-row:first-child{flex-wrap:wrap}
@@ -536,6 +542,7 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
     const n = root.querySelector(selector);
     if (!n) throw new Error("Template incompat\xEDvel: " + selector);
     n.textContent = value === null || value === "" ? "\u2014" : String(value);
+    n.classList.toggle("rd-field-text", /[\r\n]/.test(String(value ?? "")));
   }
   function note(root, title, value) {
     if (!value) return;
@@ -557,6 +564,7 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
     const n = [...root.querySelectorAll(".rd-text")].find((n2) => n2.textContent?.trim() === label);
     if (!n?.nextElementSibling) throw new Error("Campo do template ausente: " + label);
     n.nextElementSibling.textContent = value || "\u2014";
+    n.nextElementSibling.classList.toggle("rd-field-text", /[\r\n]/.test(value));
   }
   function replaceEntries(root, selector, entries, render) {
     const samples = [...root.querySelectorAll(selector)];

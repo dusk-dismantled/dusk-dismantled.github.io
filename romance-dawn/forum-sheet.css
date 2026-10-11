@@ -238,6 +238,7 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
 .rd-sheet .rd-app-narrative>.rd-column{flex:0 1 auto!important;justify-content:flex-start!important}
 .rd-sheet .rd-narrative-text,.rd-sheet .rd-record-text{white-space:pre-wrap;overflow-wrap:anywhere}
 .rd-sheet .rd-text,.rd-sheet h1,.rd-sheet h3{overflow-wrap:anywhere}
+.rd-sheet .rd-field-text{white-space:pre-wrap}
 .rd-sheet .rd-entry-card+.rd-entry-card{margin-top:14px}
 .rd-sheet .rd-app-past-rows{display:flex;flex-direction:column;gap:16px}
 .rd-sheet .rd-app-selector>.rd-talent-panels>div>.rd-column>.rd-row:first-child{flex-wrap:wrap}

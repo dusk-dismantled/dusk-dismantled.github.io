@@ -1,7 +1,12 @@
 import { freshCharacter, newEntry, parseProject } from "./model.js";
 const names = { identity: "identidade", faction: "faccao", attributes: "atributos", vitals: "vitalidade", fame: "fama", influence: "influencia", skills: "pericias", berries: "berries", gems: "gemas", downtime: "inatividade", collections: "registros", capacityAttribute: "atributodecarga", capacityOverride: "cargamanual", name: "nome", nickname: "alcunha", age: "idade", species: "especie", generation: "geracao", crew: "tripulacao", bounty: "recompensa", dream: "classificacao", dreamText: "sonho", laugh: "risada", location: "localizacao", personality: "personalidade", appearance: "aparencia", history: "historia", territories: "territorios", cover: "capa", portrait: "retrato", value: "valor", recovery: "recuperacao", health: "saude", healthIncreases: "aumentosdesaude", movement: "deslocamento", swimming: "natacao", awakened: "despertou", grade: "grau", notes: "observacoes", owned: "possuido", spent: "gasto", pasts: "passados", professions: "oficios", styles: "estilos", masteries: "maestrias", complications: "complicacoes", extras: "extras", feats: "proezas", animalTraits: "tracosanimais", trails: "trilhas", techniques: "tecnicas", nakamas: "nakamas", backpack: "mochila", inventory: "inventario", fields: "dados", attributeBonus: "bonusdeatributos", category: "categoria", level: "nivel", special: "especial", level1: "nivel1", level2: "nivel2", level3: "nivel3", source: "origem", cost: "custo", effect: "efeito", rank: "rank", sources: "fontes", pa: "pa", range: "alcance", duration: "duracao", challenge: "desafio", damageDice: "dadosdedano", damageTypes: "tiposdedano", bond: "vinculo", traits: "tracos", quantity: "quantidade", load: "carga" };
 const tag = (key) => names[key] || key.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-const escape = (s) => s.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replace(/\r\n|\r|\n/g, "&#10;");
+const escape = (s) => s.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replace(/\r\n|\r|\n/g, "<br>");
+function fieldText(node) {
+  const copy = node.cloneNode(true);
+  copy.querySelectorAll("br").forEach((br) => br.replaceWith("\n"));
+  return copy.textContent || "";
+}
 function write(key, value) {
   if (Array.isArray(value) && !value.length) return "";
   const name = tag(key);
@@ -42,7 +47,7 @@ function importCompactHTML(root) {
       return node.textContent === "true";
     }
     if (typeof base === "number" || base === null) return node.textContent?.trim() ? Number(node.textContent) : null;
-    return node.textContent || "";
+    return fieldText(node);
   }
   const defaults = freshCharacter();
   if (!root.querySelector(":scope>id")) throw new Error("Identificador da ficha ausente.");

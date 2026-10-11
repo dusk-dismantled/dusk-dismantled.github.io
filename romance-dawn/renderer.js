@@ -17,6 +17,7 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
 .rd-sheet .rd-app-narrative>.rd-column{flex:0 1 auto!important;justify-content:flex-start!important}
 .rd-sheet .rd-narrative-text,.rd-sheet .rd-record-text{white-space:pre-wrap;overflow-wrap:anywhere}
 .rd-sheet .rd-text,.rd-sheet h1,.rd-sheet h3{overflow-wrap:anywhere}
+.rd-sheet .rd-field-text{white-space:pre-wrap}
 .rd-sheet .rd-entry-card+.rd-entry-card{margin-top:14px}
 .rd-sheet .rd-app-past-rows{display:flex;flex-direction:column;gap:16px}
 .rd-sheet .rd-app-selector>.rd-talent-panels>div>.rd-column>.rd-row:first-child{flex-wrap:wrap}
@@ -46,6 +47,7 @@ function put(root, selector, value) {
   const n = root.querySelector(selector);
   if (!n) throw new Error("Template incompat\xEDvel: " + selector);
   n.textContent = value === null || value === "" ? "\u2014" : String(value);
+  n.classList.toggle("rd-field-text", /[\r\n]/.test(String(value ?? "")));
 }
 function note(root, title, value) {
   if (!value) return;
@@ -67,6 +69,7 @@ function labeled(root, label, value) {
   const n = [...root.querySelectorAll(".rd-text")].find((n2) => n2.textContent?.trim() === label);
   if (!n?.nextElementSibling) throw new Error("Campo do template ausente: " + label);
   n.nextElementSibling.textContent = value || "\u2014";
+  n.nextElementSibling.classList.toggle("rd-field-text", /[\r\n]/.test(value));
 }
 function replaceEntries(root, selector, entries, render) {
   const samples = [...root.querySelectorAll(selector)];
