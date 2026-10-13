@@ -2,6 +2,7 @@ import { ATTRIBUTES, COLLECTIONS, DREAMS, FACTIONS, GEMS, GENERATIONS, GRADES, I
 import { APP_SHEET_CSS, importHTML, renderCharacter } from "./renderer.js";
 import { FORUM_ORIGIN, preparePublication } from "./posting.js";
 import { catalogIssues, pastCatalog } from "./catalog.js";
+import { decodeRequest, forumTopic, requestPlan } from "./workflows.js";
 const $ = (selector) => {
   const node = document.querySelector(selector);
   if (!node) throw new Error("Elemento ausente: " + selector);
@@ -14,6 +15,27 @@ let project = freshProject(), draft = clone(project.character), update = proposa
 let rules = null, pasts = [];
 let forumConnected = false, publicationPending = null, publicationStatus = "", publicationURL = "";
 let canUpdate = window.parent === window && ["localhost", "127.0.0.1"].includes(location.hostname);
+let canEdit = canUpdate, sourceURL = "", topicURL = "", preparedRequest = null, requestSummary = "";
+const documentRequests = /* @__PURE__ */ new Map();
+function makeRequest() {
+  return { format: "romance-dawn-request", version: 1, id: update.id, sourceURL, topicURL, base: clone(project), draft: clone(draft), proposal: clone(update) };
+}
+function readDocument(url, operation = "sheet") {
+  if (!forumConnected) return Promise.reject(new Error("Abra o aplicativo pelo f\xF3rum para carregar uma ficha por link."));
+  forumTopic(url);
+  const requestId = "rd-" + crypto.randomUUID();
+  return new Promise((resolve, reject) => {
+    const timer2 = setTimeout(() => {
+      documentRequests.delete(requestId);
+      reject(new Error("O f\xF3rum demorou para responder. Tente carregar o link novamente."));
+    }, 3e4);
+    documentRequests.set(requestId, { resolve, reject, timer: timer2 });
+    window.parent.postMessage({ type: "romance-dawn-document-request", requestId, url, mode, operation }, FORUM_ORIGIN);
+  });
+}
+function workflowFields() {
+  return '<div class="fields"><label class="field">Link da postagem original da ficha<input id="source-url" type="url" data-meta="sourceURL" value="' + escape(sourceURL) + '"></label>' + (mode === "update" ? '<label class="field">T\xF3pico existente em Atualiza\xE7\xF5es (deixe vazio se ainda n\xE3o existe)<input id="updates-url" type="url" data-meta="topicURL" value="' + escape(topicURL) + '"></label>' : "") + '</div><button type="button" data-action="load-source">Carregar ficha pelo link acima</button>';
+}
 const rootURL = "https://romance-dawn-oprpg.forumeiros.com";
 const ruleURLs = { identity: "/t57-01-geracao", attributes: "/t67-04-atributos", origins: "/t68-05-passados", masteries: "/t78-09-maestrias", combat: "/t77-14-trilhas-de-poder", backpack: "/t75-17-mochila", update: "/t4-02-gemas" };
 function toast(message) {
@@ -23,7 +45,7 @@ function toast(message) {
 }
 function persist() {
   try {
-    localStorage.setItem(STORAGE, JSON.stringify({ version: 1, project, draft, update, mode, step }));
+    localStorage.setItem(STORAGE, JSON.stringify({ version: 1, project, draft, update, mode, step, sourceURL, topicURL, preparedRequest, requestSummary }));
     storageAvailable = true;
     $("#save-status").textContent = "\u2713 Rascunho guardado neste porto";
   } catch {
@@ -37,7 +59,7 @@ function restore() {
     if (!raw) return;
     const saved = JSON.parse(raw), nextProject = parseProject(JSON.stringify(saved.project)), nextDraft = validateCharacter(saved.draft);
     if (nextDraft.id !== nextProject.character.id) throw new Error("Rascunho pertence a outra ficha.");
-    const nextMode = saved.mode === "update" ? "update" : "create";
+    const nextMode = saved.mode === "edit" ? "edit" : saved.mode === "update" ? "update" : "create";
     if (nextMode === "update") {
       const previous = update;
       update = saved.update;
@@ -47,6 +69,10 @@ function restore() {
         update = previous;
       }
     }
+    sourceURL = typeof saved.sourceURL === "string" ? saved.sourceURL : "";
+    topicURL = typeof saved.topicURL === "string" ? saved.topicURL : "";
+    preparedRequest = saved.preparedRequest ?? null;
+    requestSummary = typeof saved.requestSummary === "string" ? saved.requestSummary : "";
     project = nextProject;
     draft = nextDraft;
     mode = nextMode;
@@ -75,13 +101,13 @@ function download(name, data, type) {
 function currentCharacter() {
   if (mode === "update") {
     try {
-      return planUpdate(project, draft, update).character;
+      return sourceURL ? requestPlan(makeRequest()).character : planUpdate(project, draft, update).character;
     } catch {
       return draft;
     }
   }
   const c = clone(draft);
-  syncCreationRecovery(c);
+  if (mode === "create") syncCreationRecovery(c);
   return c;
 }
 function currentProject() {
@@ -191,7 +217,7 @@ function identity() {
   }
   html += field("Paleta na ficha publicada", "character.faction", draft.faction, "text", Object.keys(FACTIONS));
   html += '</div><p class="hint">A op\xE7\xE3o auto usa o grupo do autor na postagem. A paleta da pr\xE9via n\xE3o altera a fac\xE7\xE3o publicada. Idade e longevidade seguem a esp\xE9cie; confira a fase da vida na regra.</p>';
-  if (mode === "update") html += '<h3>O que dizem nos portos</h3><div class="fields">' + field("Inf\xE2mia \u2190 \u22125 a 5 \u2192 Honra", "character.fame", draft.fame, "text") + field("Influ\xEAncia (0 a 12)", "character.influence", draft.influence, "number") + "</div>" + collection("nakamas") + field("Territ\xF3rios conquistados", "character.identity.territories", draft.identity.territories, "textarea");
+  if (mode !== "create") html += '<h3>O que dizem nos portos</h3><div class="fields">' + field("Inf\xE2mia \u2190 \u22125 a 5 \u2192 Honra", "character.fame", draft.fame, "text") + field("Influ\xEAncia (0 a 12)", "character.influence", draft.influence, "number") + "</div>" + collection("nakamas") + field("Territ\xF3rios conquistados", "character.identity.territories", draft.identity.territories, "textarea");
   return html;
 }
 function attributes() {
@@ -221,27 +247,43 @@ function backpack() {
   return html + field("Tempo de Inatividade dispon\xEDvel (dias)", "character.downtime", draft.downtime, "number") + '<div id="load-summary" class="meter-summary"></div><p class="hint">A carga ocupada \xE9 o total da linha, considerando a quantidade. Apenas a Mochila entra no limite; o Invent\xE1rio registra os itens guardados no navio ou em outro local.</p>' + collection("backpack") + collection("inventory");
 }
 function updateEditor() {
-  let html = '<h3>Recompensas da aventura</h3><p class="hint">Registre os resultados aprovados pela narra\xE7\xE3o. Dados de Gemas n\xE3o s\xE3o valores fixos; este di\xE1rio n\xE3o rola recompensas por voc\xEA.</p>' + field("Aventura / t\xEDtulo do registro", "update.title", update.title) + field("Link ou refer\xEAncia da aprova\xE7\xE3o", "update.reference", update.reference) + '<div class="fields">' + field("Berrys recebidos", "update.berryGain", update.berryGain, "number") + field("Berrys gastos", "update.berryCost", update.berryCost, "number") + "</div>";
+  let html = workflowFields() + '<h3>Recompensas da aventura</h3><p class="hint">Informe os comprovantes de cada premia\xE7\xE3o, incluindo itens. A Staff confere o pedido antes de modificar sua ficha oficial. Para melhorias sem custo autom\xE1tico, informe os gastos manuais e explique nas observa\xE7\xF5es.</p>' + field("Aventura / t\xEDtulo do registro", "update.title", update.title) + field("Link ou refer\xEAncia da aprova\xE7\xE3o", "update.reference", update.reference, "textarea") + '<div class="fields">' + field("Berrys recebidos", "update.berryGain", update.berryGain, "number") + field("Berrys gastos", "update.berryCost", update.berryCost, "number") + "</div>";
   for (const gem of GEMS) html += '<div class="gem-row"><strong>' + gem + "</strong>" + field(gem + " recebidos", "update.gains." + gem, update.gains[gem], "number") + field(gem + " gastos manuais", "update.spending." + gem, update.spending[gem], "number") + "</div>";
   html += '<p class="hint">Gastos manuais cobrem melhorias espec\xEDficas e exce\xE7\xF5es aprovadas. N\xE3o repita aqui os custos dos treinamentos autom\xE1ticos abaixo.</p><div class="fields">' + field("Dias de Inatividade recebidos", "update.daysGained", update.daysGained, "number") + field("Dias usados em outras atividades", "update.daysSpent", update.daysSpent, "number") + '</div><h3>Treinamentos</h3><p class="hint">Atributos: custo em Rubis por ponto e 5 dias por ponto. Recupera\xE7\xE3o: Safiras por patamar e 25 dias por patamar. Registre descontos e exce\xE7\xF5es como edi\xE7\xE3o manual aprovada.</p>';
   update.training.forEach((t, i) => html += '<div class="entry"><div class="fields">' + field("Tipo de treino", "update.training." + i + ".kind", t.kind, "text", ["attribute", "recovery"]) + field("Atributo do treino", "update.training." + i + ".attribute", t.attribute, "text", ATTRIBUTES) + field("Valor / faces desejados", "update.training." + i + ".target", t.target, "number") + '</div><button data-action="remove-training" data-index="' + i + '">Remover treino</button></div>');
   return html + '<div class="section-actions"><button data-action="add-training">+ Treinamento</button></div>' + field("Observa\xE7\xF5es / exce\xE7\xF5es aprovadas", "update.notes", update.notes, "textarea");
 }
 function review() {
-  if (mode === "update") return updateEditor() + '<div class="section-actions"><button class="primary" data-action="review-update">Conferir e registrar atualiza\xE7\xE3o</button><button data-action="discard">Descartar proposta</button></div>' + publicationControls() + "<h3>Di\xE1rio de aventuras</h3>" + historyHTML();
+  if (mode === "edit") return '<h3>Edi\xE7\xE3o da Staff</h3><p class="hint">Confira a pr\xE9via completa. A edi\xE7\xE3o ser\xE1 gravada na postagem original ap\xF3s confirma\xE7\xE3o no f\xF3rum. Nenhum limite de cria\xE7\xE3o ou custo de atualiza\xE7\xE3o \xE9 aplicado neste m\xF3dulo.</p>' + workflowFields() + (requestSummary ? "<h3>Solicita\xE7\xE3o importada</h3><pre>" + escape(requestSummary) + "</pre>" : "") + publicationControls() + "<h3>Registros locais de edi\xE7\xE3o</h3>" + historyHTML();
+  if (mode === "update") return updateEditor() + '<div class="section-actions"><button class="primary" data-action="review-update">Conferir solicita\xE7\xE3o de atualiza\xE7\xE3o</button><button data-action="discard">Descartar proposta</button></div>' + publicationControls() + "<h3>Di\xE1rio de aventuras</h3>" + historyHTML();
   const issues = [...creationIssues(draft), ...catalogIssues(draft, pasts)];
   return '<h3>Confer\xEAncia antes de zarpar</h3><p class="hint">Confira a pr\xE9via e as escolhas antes de enviar sua Vivre Card \xE0 equipe. O envio n\xE3o substitui a avalia\xE7\xE3o das regras e dos benef\xEDcios espec\xEDficos do personagem.</p>' + issuesHTML(issues) + publicationControls() + historyHTML();
+}
+function publicationPayload() {
+  if (mode === "edit") {
+    if (!canEdit) throw new Error("Edi\xE7\xE3o dispon\xEDvel apenas para a Staff.");
+    forumTopic(sourceURL);
+    return { kind: "edit", base: project, project: currentProject(), sourceURL };
+  }
+  if (mode === "update" && sourceURL) {
+    if (!preparedRequest || JSON.stringify(preparedRequest) !== JSON.stringify(makeRequest())) throw new Error("Confira e registre a solicita\xE7\xE3o antes de enviar.");
+    requestPlan(preparedRequest);
+    return { kind: "request", request: preparedRequest };
+  }
+  if (!rules) throw new Error("Regras indispon\xEDveis.");
+  if (mode === "update" && (forumConnected || !canEdit || hasPending())) throw new Error("Carregue sua ficha oficial e confira a solicita\xE7\xE3o antes de enviar.");
+  const payload = { kind: mode === "create" ? "creation" : "update", project: currentProject() };
+  preparePublication(payload, template, rules);
+  return payload;
 }
 function publicationControls() {
   let valid = true;
   try {
-    if (!rules) throw new Error("Regras indispon\xEDveis.");
-    if (mode === "update" && hasPending()) throw new Error("Registre a atualiza\xE7\xE3o primeiro.");
-    preparePublication({ kind: mode === "create" ? "creation" : "update", project: currentProject() }, template, rules);
+    publicationPayload();
   } catch {
     valid = false;
   }
-  return '<section class="publication"><h3>Enviar para avalia\xE7\xE3o</h3><p class="hint">' + (mode === "create" ? "Sua ficha ser\xE1 enviada em Cria\xE7\xE3o de Personagens." : "A ficha e o resumo ser\xE3o enviados em Atualiza\xE7\xF5es. A publica\xE7\xE3o aprovada permanece sob controle da equipe.") + ' Voc\xEA ver\xE1 uma confer\xEAncia final no f\xF3rum antes de confirmar.</p><button class="primary" data-action="publish" data-valid="' + valid + '"' + (!valid || !forumConnected || publicationPending ? " disabled" : "") + ">" + (mode === "create" ? "Enviar ficha para avalia\xE7\xE3o" : "Enviar atualiza\xE7\xE3o para avalia\xE7\xE3o") + '</button><p id="publication-status" role="status"></p><p><a id="publication-link" target="_blank" rel="noopener" hidden>Abrir t\xF3pico publicado</a></p><p class="hint" id="forum-connect-hint"' + (forumConnected ? " hidden" : "") + '>Abra o Di\xE1rio de Bordo pelo bot\xE3o do <a href="' + FORUM_ORIGIN + '" target="_blank" rel="noopener">Romance Dawn</a> para enviar usando sua conta conectada.</p></section>';
+  return '<section class="publication"><h3>Enviar para avalia\xE7\xE3o</h3><p class="hint">' + (mode === "edit" ? "A ficha ser\xE1 gravada na postagem original." : mode === "create" ? "Sua ficha ser\xE1 enviada em Cria\xE7\xE3o de Personagens." : "A solicita\xE7\xE3o e seu resumo ser\xE3o enviados em Atualiza\xE7\xF5es. A ficha oficial permanece sob controle da equipe.") + ' Voc\xEA ver\xE1 uma confer\xEAncia final no f\xF3rum antes de confirmar.</p><button class="primary" data-action="publish" data-valid="' + valid + '"' + (!valid || !forumConnected || publicationPending ? " disabled" : "") + ">" + (mode === "create" ? "Enviar ficha para avalia\xE7\xE3o" : "Enviar atualiza\xE7\xE3o para avalia\xE7\xE3o") + '</button><p id="publication-status" role="status"></p><p><a id="publication-link" target="_blank" rel="noopener" hidden>Abrir t\xF3pico publicado</a></p><p class="hint" id="forum-connect-hint"' + (forumConnected ? " hidden" : "") + '>Abra o Di\xE1rio de Bordo pelo bot\xE3o do <a href="' + FORUM_ORIGIN + '" target="_blank" rel="noopener">Romance Dawn</a> para enviar usando sua conta conectada.</p></section>';
 }
 function refreshPublicationStatus() {
   const status = document.querySelector("#publication-status");
@@ -252,17 +294,23 @@ function refreshPublicationStatus() {
     if (publicationURL) link.href = publicationURL;
   }
   const button = document.querySelector('[data-action="publish"]');
-  if (button) button.disabled = button.dataset.valid !== "true" || !forumConnected || !!publicationPending;
+  if (button) {
+    try {
+      publicationPayload();
+      button.dataset.valid = "true";
+    } catch {
+      button.dataset.valid = "false";
+    }
+    button.disabled = button.dataset.valid !== "true" || !forumConnected || !!publicationPending;
+    if (mode === "edit") button.textContent = "Conferir edi\xE7\xE3o da ficha original";
+  }
   const hint = document.querySelector("#forum-connect-hint");
   if (hint) hint.hidden = forumConnected;
 }
 function publish() {
   if (!forumConnected) throw new Error("Abra o Di\xE1rio de Bordo pelo bot\xE3o do f\xF3rum para enviar sua ficha.");
   if (publicationPending) throw new Error("Conclua a confer\xEAncia que j\xE1 est\xE1 aberta.");
-  if (mode === "update" && hasPending()) throw new Error("Confira e registre a atualiza\xE7\xE3o antes de envi\xE1-la.");
-  if (!rules) throw new Error("As regras n\xE3o puderam ser carregadas.");
-  const payload = { kind: mode === "create" ? "creation" : "update", project: currentProject() };
-  preparePublication(payload, template, rules);
+  const payload = publicationPayload();
   publicationPending = "rd-" + crypto.randomUUID();
   publicationURL = "";
   publicationStatus = "Abrindo a confer\xEAncia final no f\xF3rum\u2026";
@@ -276,12 +324,17 @@ function historyHTML() {
   return project.history.length ? [...project.history].reverse().map((h) => '<details class="history-record"><summary>' + escape(h.title) + " \xB7 " + escape(new Date(h.date).toLocaleDateString("pt-BR")) + "</summary><pre>" + escape(h.summary) + '</pre><button data-action="download-summary" data-id="' + escape(h.id) + '">Baixar resumo</button></details>').join("") + '<button data-action="undo-update">Desfazer \xFAltimo registro local</button>' : '<p class="hint">O di\xE1rio ainda n\xE3o tem aventuras registradas.</p>';
 }
 function renderEditor() {
+  if (mode === "edit" && !canEdit) {
+    $("#workspace").hidden = true;
+    $("#launcher").hidden = false;
+    return;
+  }
   if (mode === "update" && !canUpdate) {
     $("#workspace").hidden = true;
     $("#launcher").hidden = false;
     return;
   }
-  $("#module-title").textContent = mode === "create" ? "Criar Vivre Card" : "Atualizar Vivre Card";
+  $("#module-title").textContent = mode === "create" ? "Criar Vivre Card" : mode === "edit" ? "Editar Vivre Card \u2014 Staff" : "Solicitar atualiza\xE7\xE3o";
   $("#steps").innerHTML = steps.map(([key2, label2], i) => '<button data-action="step" data-index="' + i + '"' + (i === step ? ' aria-current="step"' : "") + ">" + String(i + 1).padStart(2, "0") + " " + (mode === "update" && key2 === "review" ? "Registro" : label2) + "</button>").join("");
   if (mode === "create") syncCreationRecovery(draft);
   const [key, label] = steps[step];
@@ -302,6 +355,7 @@ function enter(nextMode) {
     project.character = clone(draft);
     draft = clone(project.character);
     update = proposal();
+    preparedRequest = null;
     mode = nextMode;
   }
   $("#launcher").hidden = true;
@@ -324,7 +378,7 @@ function confirmDialog(title, summary, callback, approval = false) {
 }
 function backup() {
   try {
-    const data = { ...currentProject(), pending: mode === "update" ? { base: project, draft, update } : null };
+    const data = { ...currentProject(), workflow: { mode, sourceURL, topicURL, requestSummary, base: mode === "edit" ? project : void 0 }, pending: mode === "update" ? { base: project, draft, update } : null };
     const raw = JSON.stringify(data, null, 2);
     if (new TextEncoder().encode(raw).length > 5e6) throw new Error("O backup excede 5 MB. Reduza os textos ou guarde um arquivo de continuidade.");
     parseProject(JSON.stringify(data));
@@ -336,31 +390,63 @@ function backup() {
 }
 async function recover(raw) {
   try {
-    let next, nextDraft, nextUpdate;
+    let next, nextDraft, nextUpdate, nextMode = mode, nextSource = "", nextTopic = "", summary = "";
     const json = raw.trim().startsWith("{");
-    next = json ? parseProject(raw) : await importHTML(raw, template);
-    if (json) {
-      const extra = JSON.parse(raw);
-      if (extra.pending) {
-        const base = parseProject(JSON.stringify(extra.pending.base));
-        nextDraft = validateCharacter(extra.pending.draft);
-        nextUpdate = extra.pending.update;
-        if (base.character.id !== next.character.id || nextDraft.id !== base.character.id) throw new Error("Proposta pertence a outra ficha.");
-        next = base;
+    const requestCode = raw.trim().startsWith("RD-UPDATE:") ? raw.trim() : new DOMParser().parseFromString(raw, "text/html").querySelector(".rd-request-code")?.textContent?.trim();
+    if (requestCode) {
+      if (mode !== "edit" || !canEdit) throw new Error("Abra Edi\xE7\xE3o de Ficha \u2014 Staff para importar uma solicita\xE7\xE3o.");
+      const request = await decodeRequest(requestCode), result = requestPlan(request);
+      next = request.base;
+      nextDraft = result.character;
+      nextSource = request.sourceURL;
+      summary = result.summary;
+    } else if (/^https:\/\//.test(raw.trim())) {
+      const loaded = await readDocument(raw.trim());
+      next = parseProject(JSON.stringify(loaded.project));
+      nextSource = loaded.sourceURL;
+    } else {
+      next = json ? parseProject(raw) : await importHTML(raw, template);
+      if (json) {
+        const extra = JSON.parse(raw);
+        if (extra.workflow) {
+          nextMode = extra.workflow.mode === "edit" ? "edit" : extra.workflow.mode === "update" ? "update" : "create";
+          nextSource = extra.workflow.sourceURL || "";
+          nextTopic = extra.workflow.topicURL || "";
+          summary = extra.workflow.requestSummary || "";
+          if (nextMode === "edit" && extra.workflow.base) {
+            const base = parseProject(JSON.stringify(extra.workflow.base));
+            if (base.character.id !== next.character.id) throw new Error("O backup de edi\xE7\xE3o pertence a outra ficha.");
+            nextDraft = clone(next.character);
+            next = base;
+          }
+        }
+        if (extra.pending) {
+          const base = parseProject(JSON.stringify(extra.pending.base));
+          nextDraft = validateCharacter(extra.pending.draft);
+          nextUpdate = extra.pending.update;
+          if (base.character.id !== next.character.id || nextDraft.id !== base.character.id) throw new Error("Proposta pertence a outra ficha.");
+          next = base;
+          nextMode = "update";
+        }
       }
     }
+    if (nextMode === "edit" && !canEdit) throw new Error("Edi\xE7\xE3o dispon\xEDvel apenas para a Staff.");
     const accept = () => {
       project = next;
       draft = nextDraft ?? clone(next.character);
       update = nextUpdate ?? proposal();
-      mode = nextUpdate ? "update" : "create";
-      step = 0;
+      mode = nextMode;
+      sourceURL = nextSource;
+      topicURL = nextTopic;
+      preparedRequest = null;
+      requestSummary = summary;
+      step = mode === "update" ? 6 : 0;
       persist();
       $("#import-dialog").close();
       $("#launcher").hidden = true;
       $("#workspace").hidden = false;
       renderEditor();
-      toast(json ? "Vivre Card recuperado." : "Vivre Card recuperado do HTML. O hist\xF3rico completo est\xE1 no backup JSON.");
+      toast("Vivre Card carregado. Confira a pr\xE9via antes de enviar.");
     };
     if (nextUpdate) {
       const saved = update;
@@ -379,6 +465,14 @@ async function recover(raw) {
 function action(target) {
   const act = target.dataset.action, index = Number(target.dataset.index), kind = target.dataset.kind;
   try {
+    if (act === "load-source") {
+      if (!sourceURL) {
+        $("#import").click();
+        return;
+      }
+      void recover(sourceURL);
+      return;
+    }
     if (act === "step") {
       step = index;
       renderEditor();
@@ -436,14 +530,21 @@ function action(target) {
     if (act === "publish") publish();
     if (act === "export-json") backup();
     if (act === "review-update") {
-      const result = planUpdate(project, draft, update);
-      confirmDialog("Registrar os frutos da aventura?", result.summary, () => {
-        project = confirmUpdate(project, draft, update);
-        draft = clone(project.character);
-        update = proposal();
+      if (forumConnected && !sourceURL) throw new Error("Carregue a ficha oficial pelo link antes de preparar a solicita\xE7\xE3o.");
+      const request = sourceURL ? makeRequest() : null, result = request ? requestPlan(request) : planUpdate(project, draft, update);
+      confirmDialog(request ? "Conferir solicita\xE7\xE3o de atualiza\xE7\xE3o?" : "Registrar os frutos da aventura?", result.summary, () => {
+        if (request) {
+          preparedRequest = clone(request);
+          requestSummary = result.summary;
+          toast("Solicita\xE7\xE3o conferida. Envie para avalia\xE7\xE3o; a ficha oficial permanece intacta.");
+        } else {
+          project = confirmUpdate(project, draft, update);
+          draft = clone(project.character);
+          update = proposal();
+          toast("Atualiza\xE7\xE3o registrada no di\xE1rio local.");
+        }
         renderEditor();
         persist();
-        toast("Atualiza\xE7\xE3o registrada no di\xE1rio local. Exporte a ficha e o resumo para o f\xF3rum.");
       }, true);
     }
     if (act === "discard") confirmDialog("Descartar a proposta?", "A ficha-base e o hist\xF3rico ser\xE3o mantidos.", () => {
@@ -499,6 +600,18 @@ async function main() {
   void previewDoc.fonts.ready.then(resizePreview);
   restore();
   $("#preview-faction").innerHTML = Object.entries(FACTIONS).filter(([key]) => key !== "auto").map(([key, label]) => '<option value="' + key + '"' + (key === "neutral" ? " selected" : "") + ">" + label + "</option>").join("");
+  const editModule = document.createElement("button");
+  editModule.id = "edit-module";
+  editModule.type = "button";
+  editModule.hidden = !canEdit;
+  editModule.innerHTML = "<small>03 / ARQUIVO DA STAFF</small><strong>Editar ficha</strong><span>Carregue uma ficha ou solicita\xE7\xE3o, confira a pr\xE9via e grave na postagem original.</span><b>Conferir o registro \u2197</b>";
+  document.querySelector(".module-cards").append(editModule);
+  editModule.onclick = () => {
+    if (canEdit) {
+      enter("edit");
+      $("#import").click();
+    }
+  };
   $("#update-module").hidden = !canUpdate;
   $("#create-module").onclick = () => enter("create");
   $("#update-module").onclick = () => {
@@ -513,6 +626,10 @@ async function main() {
     draft = clone(project.character);
     update = proposal();
     mode = "create";
+    sourceURL = "";
+    topicURL = "";
+    preparedRequest = null;
+    requestSummary = "";
     step = 0;
     renderEditor();
     persist();
@@ -530,6 +647,15 @@ async function main() {
   $("#import-file-button").onclick = () => $("#file").click();
   $("#import-code").onclick = () => recover($("#import-text").value);
   $("#import-close").onclick = $("#import-cancel").onclick = () => $("#import-dialog").close();
+  $("#import-link").onclick = () => void recover($("#import-url").value);
+  $("#import-request-link").onclick = async () => {
+    try {
+      const loaded2 = await readDocument($("#import-url").value, "request");
+      await recover(loaded2.code);
+    } catch (error) {
+      $("#import-error").textContent = error.message;
+    }
+  };
   $("#file").onchange = async () => {
     const file = $("#file").files?.[0];
     if (file) {
@@ -570,6 +696,14 @@ async function main() {
   });
   const onInput = (event) => {
     const input = event.target, path = input.dataset.path;
+    if (input.dataset.meta) {
+      if (input.dataset.meta === "sourceURL") sourceURL = input.value;
+      else topicURL = input.value;
+      preparedRequest = null;
+      persist();
+      refreshPublicationStatus();
+      return;
+    }
     if (!path) return;
     const old = readPath(path);
     try {
@@ -582,12 +716,14 @@ async function main() {
         if (value !== null && (!Number.isFinite(value) || path === "character.capacityOverride" && value < 0)) throw new Error("Informe um n\xFAmero v\xE1lido.");
       }
       writePath(path, value);
+      preparedRequest = null;
       if (mode === "create") {
         if (/\.attributes\.[^.]+\.value$/.test(path) || path === "character.identity.generation" || path.includes(".complications.")) assertCreationAttributes(draft);
         syncCreationRecovery(draft);
       }
       if (path === "character.identity.generation") renderEditor();
       else setPreview();
+      refreshPublicationStatus();
       clearTimeout(timer);
       timer = setTimeout(() => {
         if (mode === "create") project.character = clone(draft);
@@ -611,11 +747,24 @@ async function main() {
       setPreview();
     }
     if (event.origin !== FORUM_ORIGIN) return;
+    if (event.data?.type === "romance-dawn-document-result") {
+      const pending = documentRequests.get(event.data.requestId);
+      if (pending) {
+        clearTimeout(pending.timer);
+        documentRequests.delete(event.data.requestId);
+        if (event.data.error) pending.reject(new Error(event.data.error));
+        else pending.resolve(event.data);
+      }
+      return;
+    }
     if (event.data?.type === "romance-dawn-forum-context") {
       forumConnected = event.data.connected === true;
       canUpdate = forumConnected && event.data.canUpdate === true;
+      canEdit = forumConnected && event.data.canEdit === true;
       $("#update-module").hidden = !canUpdate;
-      if (mode === "update" && !canUpdate) {
+      $("#edit-module").hidden = !canEdit;
+      $("#import-request-link").hidden = !canEdit;
+      if (mode === "update" && !canUpdate || mode === "edit" && !canEdit) {
         $("#workspace").hidden = true;
         $("#launcher").hidden = false;
       }
@@ -625,11 +774,17 @@ async function main() {
       publicationPending = null;
       publicationURL = "";
       if (event.data.status === "posted") {
+        if (mode === "edit") {
+          const before = clone(project.character);
+          project.character = clone(draft);
+          project.history.push({ id: "rd-" + crypto.randomUUID(), date: (/* @__PURE__ */ new Date()).toISOString(), title: "Edi\xE7\xE3o da Staff", reference: String(event.data.url), summary: requestSummary || "Edi\xE7\xE3o manual conferida na pr\xE9via.", before, after: clone(draft) });
+          persist();
+        }
         try {
           const url = new URL(event.data.url);
           if (url.origin !== FORUM_ORIGIN || !/^\/(?:t\d+|viewtopic)/.test(url.pathname)) throw new Error();
           publicationURL = url.href;
-          publicationStatus = "Sua Vivre Card foi enviada para avalia\xE7\xE3o.";
+          publicationStatus = mode === "edit" ? "A ficha original foi atualizada." : mode === "update" ? "Solicita\xE7\xE3o enviada para confer\xEAncia da Staff." : "Sua Vivre Card foi enviada para avalia\xE7\xE3o.";
         } catch {
           publicationStatus = "Confira a publica\xE7\xE3o no f\xF3rum. O link recebido n\xE3o p\xF4de ser validado.";
         }

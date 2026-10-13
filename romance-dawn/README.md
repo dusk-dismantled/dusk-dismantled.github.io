@@ -38,9 +38,19 @@ if (!document.getElementById('rd-bord-app-loader')) {
 
 O lançador adiciona o botão, o modal, as fontes e a folha de estilos externa da ficha. Não é necessário copiar o CSS para cada postagem nem alterar as cores da skin. HTML deve estar habilitado no fórum e no perfil do jogador.
 
-A criação está liberada para membros logados. A atualização exige associação ao grupo Staff (`g1`), verificada na seção de grupos de que o usuário é membro em `/groups`. Cor do nome e cargo de administrador não concedem acesso à atualização. As fontes e os estilos das fichas continuam disponíveis para todos os leitores.
+A criação e a solicitação de atualização estão liberadas para membros logados. A edição direta exige associação ao grupo Staff (`g1`), verificada na seção de grupos de que o usuário é membro em `/groups`. Cor do nome e cargo de administrador não concedem acesso à edição. As fontes e os estilos das fichas continuam disponíveis para todos os leitores.
 
-Use `window.ROMANCE_DAWN_APP_ACCESS = 'members'` para o acesso ao botão; a atualização continua exclusiva à Staff. O aplicativo estático no GitHub Pages continua público.
+Use `window.ROMANCE_DAWN_APP_ACCESS = 'members'` para o acesso ao botão. O aplicativo estático no GitHub Pages continua público; operações no fórum usam a sessão do usuário e verificam suas permissões novamente antes de enviar.
+
+## Solicitações dos jogadores e edição da Staff
+
+Em **Solicitar atualização**, carregue o link direto da postagem da sua ficha ou importe seu código/backup e informe esse link. Apenas o autor da postagem pode solicitar sua atualização. Em Registro, informe as premiações e seus comprovantes (links de tópicos do Romance Dawn), gastos e treinamentos; edite as outras abas e confira a prévia. Aumentos de atributos e dados de recuperação são cobrados automaticamente mesmo quando digitados diretamente. Outras melhorias usam os gastos manuais e exigem conferência da Staff. A ficha oficial não é alterada por essa solicitação.
+
+Se já existe um tópico do personagem em Atualizações, informe seu link antes de enviar: a solicitação será uma resposta nele. Sem link, a listagem de f22 é verificada, incluindo paginação, antes de criar `[Atualizações] Nome`. Comprovantes, saldos, custos e alterações compõem o resumo; listas mostram apenas entradas alteradas, adicionadas ou removidas. O tópico inclui um código `RD-UPDATE:` para copiar/importar na edição da Staff. Esse código usa compressão gzip, contém a ficha-base, os dados propostos e os comprovantes, e não substitui a aprovação da equipe.
+
+Em **Editar ficha — Staff**, carregue a postagem original, código ou backup. Para aplicar uma solicitação, cole `RD-UPDATE:` ou carregue o link direto da mensagem de solicitação. Confira os comprovantes e a prévia e ajuste os campos livremente, sem orçamento ou tetos de criação e sem cobrança automática. Na Revisão, informe o link original e confirme a edição no modal do fórum. O título, a autoria e os textos externos ao bloco da ficha são preservados. Se a ficha-base mudar, a operação é bloqueada antes do envio. Backups e rascunhos mantêm a base original e a proposta separadas; edições confirmadas ficam no histórico local.
+
+Os formulários nativos de resposta e edição foram inspecionados e a substituição de uma ficha real foi validada sem POST. Os testes de escrita, permissões, conflito e transferência entre módulos usam fórum simulado.
 
 ## Envio de fichas
 
@@ -54,7 +64,7 @@ O aplicativo aberto diretamente no GitHub Pages ou no servidor local permite edi
 
 ## Atualizações
 
-Registre recompensas, custos, treinamentos e alterações no módulo de atualização. Confira o resumo e confirme o registro local conforme a aprovação da narração. Depois use **Enviar atualização para avaliação**: o fórum publica o resumo e a ficha em **Atualizações (f22)**. O aplicativo não edita a ficha aprovada nem concede aprovação por conta própria.
+Registre recompensas, comprovantes, custos, treinamentos e alterações em Solicitar atualização. Confira o resumo e use **Enviar atualização para avaliação**: o fórum publica a solicitação em **Atualizações (f22)**. A Staff aplica as mudanças pelo módulo de edição, com uma confirmação separada. O pedido do jogador não concede aprovação nem altera a ficha oficial.
 
 Os custos automáticos cobrem Atributos e Dados de Recuperação. Outros benefícios, exceções e custos são registrados manualmente conforme as regras. Desfazer um registro local não desfaz um tópico já enviado.
 
@@ -85,4 +95,4 @@ Fontes TypeScript: `src/sheet-app`. O build gera os módulos e o lançador empac
 
 As regras consultadas ficam em `inspections/character-sheet/app-rules.json`. Os formulários de f12 e f22 foram verificados com a sessão real em 08/10/2026, sem enviar postagem de teste. Os testes de envio usam um fórum simulado em outra origem.
 
-Criação liberada para membros logados. A atualização permanece exclusiva à Staff: associação ao grupo g1 é conferida para exibir o módulo e antes de preparar e confirmar seu envio. O aplicativo hospedado diretamente não exibe atualização; o servidor local mantém os módulos para desenvolvimento.
+O servidor local exibe os módulos para desenvolvimento. No fórum, criação e solicitações atendem membros logados; edição atende a Staff. Fora do fórum, a hospedagem estática não autoriza operações sobre postagens.

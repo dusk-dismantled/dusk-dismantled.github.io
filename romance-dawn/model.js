@@ -255,7 +255,7 @@ function planUpdate(project, draft, p) {
   lines.push("Berrys: " + base.berries + " \u2192 " + next.berries, "Tempo de Inatividade: " + base.downtime + " \u2192 " + next.downtime + " dias", ...costs.lines);
   for (const t of p.training) if (t.kind === "attribute") next.attributes[t.attribute].value = t.target;
   else next.attributes[t.attribute].recovery = t.target;
-  const labels = { ...IDENTITY_FIELDS, ...VITAL_FIELDS, ...Object.fromEntries(Object.entries(COLLECTIONS).map(([key, spec]) => [key, spec.label])), identity: "Identidade", attributes: "Atributos", value: "M\xE1ximo", recovery: "Recupera\xE7\xE3o", vitals: "Sa\xFAde e deslocamentos", fame: "Inf\xE2mia / Honra", influence: "Influ\xEAncia", skills: "Per\xEDcias", haki: "Hakis", collections: "Registros", faction: "Paleta da fac\xE7\xE3o" };
+  const labels = { ...IDENTITY_FIELDS, ...VITAL_FIELDS, ...Object.fromEntries(Object.entries(COLLECTIONS).map(([key, spec]) => [key, spec.label])), identity: "Identidade", attributes: "Atributos", value: "M\xE1ximo", recovery: "Recupera\xE7\xE3o", vitals: "Sa\xFAde e deslocamentos", fame: "Inf\xE2mia / Honra", influence: "Influ\xEAncia", skills: "Per\xEDcias", haki: "Hakis", collections: "Registros", faction: "Paleta da fac\xE7\xE3o", capacityAttribute: "Atributo de carga", capacityOverride: "Capacidade manual" };
   const describe = (value, path) => {
     if (Array.isArray(value)) {
       if (!value.length) return "nenhum registro";
@@ -273,11 +273,27 @@ function planUpdate(project, draft, p) {
   };
   const compare = (a, b, path) => {
     if (JSON.stringify(a) === JSON.stringify(b)) return;
-    if (a && b && typeof a === "object" && typeof b === "object" && !Array.isArray(a) && !Array.isArray(b)) {
-      for (const key of Object.keys(b)) compare(a[key], b[key], path ? path + " / " + key : key);
-    } else lines.push(path.split(" / ").map((key) => labels[key] ?? key).join(" / ") + ": " + describe(a, path) + " \u2192 " + describe(b, path));
+    const label = path.split(" / ").map((key) => labels[key] ?? key).join(" / ");
+    if (Array.isArray(a) && Array.isArray(b) && [...a, ...b].every((e) => e?.id && e?.fields)) {
+      const before = new Map(a.map((e) => [e.id, e])), after = new Map(b.map((e) => [e.id, e]));
+      const count = lines.length;
+      for (const entry of a) if (!after.has(entry.id)) lines.push(label + ": removido " + entry.fields.name);
+      for (const entry of b) {
+        const old = before.get(entry.id);
+        if (!old) {
+          lines.push(label + ": adicionado " + describe([entry], path));
+          continue;
+        }
+        const spec = COLLECTIONS[path.split(" / ").at(-1)]?.fields;
+        for (const key of Object.keys(entry.fields)) if (old.fields[key] !== entry.fields[key]) lines.push(label + " / " + entry.fields.name + " / " + (spec?.[key] ?? key) + ": " + (old.fields[key] || "\u2014") + " \u2192 " + (entry.fields[key] || "\u2014"));
+        if (old.attributeBonus !== entry.attributeBonus) lines.push(label + " / " + entry.fields.name + ": b\xF4nus de Atributos " + (old.attributeBonus ? "Sim" : "N\xE3o") + " \u2192 " + (entry.attributeBonus ? "Sim" : "N\xE3o"));
+      }
+      if (lines.length === count) lines.push(label + ": ordem ajustada para " + b.map((e) => e.fields.name).join(", "));
+    } else if (a && b && typeof a === "object" && typeof b === "object" && !Array.isArray(a) && !Array.isArray(b)) {
+      for (const key of /* @__PURE__ */ new Set([...Object.keys(a), ...Object.keys(b)])) compare(a[key], b[key], path ? path + " / " + key : key);
+    } else lines.push(label + ": " + describe(a, path) + " \u2192 " + describe(b, path));
   };
-  for (const k of ["identity", "attributes", "vitals", "fame", "influence", "skills", "haki", "collections", "faction"]) compare(base[k], next[k], k);
+  for (const k of ["identity", "attributes", "vitals", "fame", "influence", "skills", "haki", "collections", "faction", "capacityAttribute", "capacityOverride"]) compare(base[k], next[k], k);
   if (p.notes.trim()) lines.push("Observa\xE7\xF5es: " + p.notes);
   return { character: validateCharacter(next), summary: lines.join("\n") };
 }

@@ -27,19 +27,24 @@ function postingForm(doc, forum, publication) {
   const form = [...doc.forms].find((f) => new URL(f.getAttribute("action") || "", FORUM_ORIGIN).pathname === "/post" && f.querySelector('textarea[name="message"]'));
   if (!form || form.method.toLowerCase() !== "post" || new URL(form.getAttribute("action") || "", FORUM_ORIGIN).origin !== FORUM_ORIGIN) throw new Error("Entre na sua conta do f\xF3rum e confira a permiss\xE3o para criar t\xF3picos nesta \xE1rea.");
   const mode = form.querySelector('[name="mode"]'), destination = form.querySelector('[name="f"]');
-  if (mode?.value !== "newtopic" || destination?.value !== String(forum) || !form.querySelector('[name="post"]')) throw new Error("O formul\xE1rio do f\xF3rum n\xE3o corresponde \xE0 \xE1rea de avalia\xE7\xE3o.");
+  const expectedMode = publication.mode || "newtopic";
+  if (mode?.value !== expectedMode || expectedMode === "newtopic" && destination?.value !== String(forum) || !form.querySelector('[name="post"]')) throw new Error("O formul\xE1rio do f\xF3rum n\xE3o corresponde \xE0 \xE1rea de avalia\xE7\xE3o.");
+  if (expectedMode === "editpost" && form.querySelector('[name="p"]')?.value !== publication.postId) throw new Error("A postagem de edi\xE7\xE3o n\xE3o corresponde \xE0 ficha.");
+  if (expectedMode === "reply" && form.querySelector('[name="t"]')?.value !== publication.topicId) throw new Error("O t\xF3pico de destino n\xE3o corresponde \xE0 solicita\xE7\xE3o.");
   const subject = form.querySelector('[name="subject"]');
-  if (!subject) throw new Error("Campo de t\xEDtulo n\xE3o encontrado no f\xF3rum.");
-  if (subject.maxLength > 0 && publication.title.length > subject.maxLength) throw new Error("O t\xEDtulo excede o limite de " + subject.maxLength + " caracteres do f\xF3rum. Encurte o nome do personagem.");
+  if (!subject && expectedMode === "newtopic") throw new Error("Campo de t\xEDtulo n\xE3o encontrado no f\xF3rum.");
+  if (expectedMode === "newtopic" && subject && subject.maxLength > 0 && publication.title.length > subject.maxLength) throw new Error("O t\xEDtulo excede o limite de " + subject.maxLength + " caracteres do f\xF3rum. Encurte o nome do personagem.");
   const body = new URLSearchParams();
   for (const [key, value] of new FormData(form)) {
     if (typeof value === "string") body.append(key, value);
   }
-  body.set("subject", publication.title);
+  if (expectedMode === "newtopic") {
+    body.set("subject", publication.title);
+    body.set("f", String(forum));
+    body.set("topictype", "0");
+  }
   body.set("message", publication.message);
-  body.set("mode", "newtopic");
-  body.set("f", String(forum));
-  body.set("topictype", "0");
+  body.set("mode", expectedMode);
   body.delete("preview");
   body.delete("disable_html");
   body.delete("disable_smilies");
@@ -60,7 +65,7 @@ function publishedTopic(doc, responseURL, characterId) {
   if (direct && ([...doc.querySelectorAll(".rd-sheet")].some((n) => n.id === characterId) || [...doc.querySelectorAll('ficha[versao="2"]>id')].some((n) => n.textContent === characterId))) return direct;
   const text = doc.body?.textContent || "";
   if (doc.querySelector('form textarea[name="message"]') || /mensagem[\s\S]{0,30}não[\s\S]{0,40}(?:enviad|publicad|registrad)/i.test(text)) return null;
-  if (!/(?:mensagem|message)[\s\S]{0,100}(?:enviad|publicad|registrad|posted|entered)|tópico[\s\S]{0,60}criado/i.test(text)) return null;
+  if (!/(?:mensagem|message)[\s\S]{0,100}(?:enviad|publicad|registrad|atualizad|alterad|modificad|posted|entered|updated|edited)|tópico[\s\S]{0,60}criado/i.test(text)) return null;
   const refresh = doc.querySelector('meta[http-equiv="refresh" i]')?.content.match(/url\s*=\s*['"]?([^'"\s]+)/i)?.[1];
   if (refresh && topic(refresh)) return topic(refresh);
   for (const a of doc.querySelectorAll("a[href]")) if (/^(?:clique aqui|ver (?:a |o |sua )?(?:mensagem|tópico)|visualizar|click here|view (?:your )?(?:message|topic))/i.test(a.textContent?.trim() || "")) {
@@ -81,13 +86,14 @@ function publicationRejection(doc) {
   }
   return null;
 }
-function publicationChallenge(doc, forum) {
+function publicationChallenge(doc, forum, postId) {
   const copy = doc.body?.cloneNode(true);
   copy?.querySelectorAll("script,style,input,textarea").forEach((n) => n.remove());
   if (!/verificação anti-spam/i.test(copy?.textContent || "")) return false;
   return [...doc.forms].some((form) => {
     const url = new URL(form.getAttribute("action") || "/post", FORUM_ORIGIN);
-    return url.origin === FORUM_ORIGIN && url.pathname === "/post" && form.method === "post" && form.querySelector('[name="f"]')?.value === String(forum) && !!form.querySelector('[name="post_confirm"]');
+    const destination = forum === 0 ? !!postId && form.querySelector('[name="p"]')?.value === postId : form.querySelector('[name="f"]')?.value === String(forum);
+    return url.origin === FORUM_ORIGIN && url.pathname === "/post" && form.method === "post" && destination && !!form.querySelector('[name="post_confirm"]');
   });
 }
 export {

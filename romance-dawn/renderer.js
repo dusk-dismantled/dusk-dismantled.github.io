@@ -407,10 +407,34 @@ async function importHTML(raw, template) {
   renderCharacter(project.character, template);
   return project;
 }
+async function importForumHTML(raw, template) {
+  try {
+    return await importHTML(raw, template);
+  } catch (error) {
+    if (!error.message.includes("alterado depois da exporta\xE7\xE3o")) throw error;
+    const doc = new DOMParser().parseFromString(raw, "text/html"), roots = doc.querySelectorAll(".rd-sheet[data-rd-state]");
+    if (roots.length !== 1) throw error;
+    const root = roots[0], project = parseProject(await portableState(root.dataset.rdState));
+    const texts = [...root.querySelectorAll(".rd-narrative-text")];
+    for (const [i, key] of ["personality", "appearance", "history"].entries()) if (texts[i]) {
+      const node = texts[i].cloneNode(true);
+      node.querySelectorAll("br").forEach((n) => n.replaceWith("\n"));
+      project.character.identity[key] = node.textContent || "";
+    }
+    for (const [selector, key, variable] of [[".rd-header", "cover", "--rd-cover"], [".rd-portrait", "portrait", "--rd-portrait"]]) {
+      const node = root.querySelector(selector), image = node?.querySelector("img")?.getAttribute("src"), url = node?.style.getPropertyValue(variable).match(/url\(["']?(.*?)["']?\)/)?.[1];
+      if (image || url) project.character.identity[key] = image || url || "";
+    }
+    const expected = renderCharacter(project.character, template), text = (node) => (node.textContent || "").replace(/\s+/g, " ").trim();
+    if (text(root) !== text(expected)) throw new Error("A ficha antiga possui edi\xE7\xF5es manuais que n\xE3o correspondem aos dados salvos. Importe o backup JSON para preservar todas as altera\xE7\xF5es.");
+    return parseProject(JSON.stringify(project));
+  }
+}
 export {
   APP_SHEET_CSS,
   compactHTML,
   exportHTML,
+  importForumHTML,
   importHTML,
   renderCharacter
 };
