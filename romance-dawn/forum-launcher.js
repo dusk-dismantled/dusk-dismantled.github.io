@@ -1112,12 +1112,13 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
   async function loadForumSheet(value, template, ownerOnly = false) {
     const url = forumTopic(value), doc = await forumDocument(url.href), postId = url.hash.match(/^#p?(\d+)$/)?.[1] || url.searchParams.get("p");
     const posts = [...doc.querySelectorAll(".post")].filter((n) => n.querySelector('ficha[versao="2"],.rd-sheet[data-rd-state]'));
-    const matches = postId ? posts.filter((p) => p.id.replace(/^p/, "") === postId) : posts;
+    const direct = postId ? posts.filter((p) => p.id.replace(/^p/, "") === postId) : posts;
+    const matches = direct.length ? direct : posts.length === 1 ? posts : [];
     if (matches.length !== 1) throw new Error("Use o link direto da postagem que cont\xE9m a ficha. A p\xE1gina deve identificar uma \xFAnica ficha.");
     const post = matches[0], id = post.id.match(/^p?(\d+)$/)?.[1];
     if (!id) throw new Error("A postagem da ficha n\xE3o p\xF4de ser identificada.");
     const project = await importForumHTML(post.innerHTML, template), authorId = author(post);
-    if (ownerOnly && authorId !== Number(window._userdata?.user_id)) throw new Error("Voc\xEA s\xF3 pode solicitar atualiza\xE7\xF5es da ficha publicada pela sua conta.");
+    if (ownerOnly && authorId !== Number(window._userdata?.user_id)) throw new Error("Voc\xEA s\xF3 pode solicitar atualiza\xE7\xF5es da ficha publicada pela sua conta. Para editar a ficha de outro jogador como Staff, use o m\xF3dulo Editar ficha.");
     return { project, sourceURL: FORUM_ORIGIN + "/viewtopic?t=" + topicId(url) + "&p=" + id + "#" + id, postId: id, authorId };
   }
   function replaceSheet(message, replacement) {

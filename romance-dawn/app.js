@@ -16,6 +16,7 @@ let rules = null, pasts = [];
 let forumConnected = false, publicationPending = null, publicationStatus = "", publicationURL = "";
 let canUpdate = window.parent === window && ["localhost", "127.0.0.1"].includes(location.hostname);
 let canEdit = canUpdate, sourceURL = "", topicURL = "", preparedRequest = null, requestSummary = "";
+let recovering = false;
 const documentRequests = /* @__PURE__ */ new Map();
 function makeRequest() {
   return { format: "romance-dawn-request", version: 1, id: update.id, sourceURL, topicURL, base: clone(project), draft: clone(draft), proposal: clone(update) };
@@ -34,7 +35,7 @@ function readDocument(url, operation = "sheet") {
   });
 }
 function workflowFields() {
-  return '<div class="fields"><label class="field">Link da postagem original da ficha<input id="source-url" type="url" data-meta="sourceURL" value="' + escape(sourceURL) + '"></label>' + (mode === "update" ? '<label class="field">T\xF3pico existente em Atualiza\xE7\xF5es (deixe vazio se ainda n\xE3o existe)<input id="updates-url" type="url" data-meta="topicURL" value="' + escape(topicURL) + '"></label>' : "") + '</div><button type="button" data-action="load-source">Carregar ficha pelo link acima</button>';
+  return '<div class="fields"><label class="field">Link da postagem original da ficha<input id="source-url" type="url" data-meta="sourceURL" value="' + escape(sourceURL) + '"></label>' + (mode === "update" ? '<label class="field">T\xF3pico existente em Atualiza\xE7\xF5es (deixe vazio se ainda n\xE3o existe)<input id="updates-url" type="url" data-meta="topicURL" value="' + escape(topicURL) + '"></label>' : "") + '</div><button type="button" data-action="load-source">Carregar ficha pelo link acima</button><p id="document-status" role="alert"></p>';
 }
 const rootURL = "https://romance-dawn-oprpg.forumeiros.com";
 const ruleURLs = { identity: "/t57-01-geracao", attributes: "/t67-04-atributos", origins: "/t68-05-passados", masteries: "/t78-09-maestrias", combat: "/t77-14-trilhas-de-poder", backpack: "/t75-17-mochila", update: "/t4-02-gemas" };
@@ -389,6 +390,14 @@ function backup() {
   }
 }
 async function recover(raw) {
+  if (recovering) {
+    toast("Aguarde o carregamento da ficha.");
+    return;
+  }
+  recovering = true;
+  const status = document.querySelector("#document-status");
+  if (status) status.textContent = "Carregando ficha\u2026";
+  $("#import-error").textContent = "";
   try {
     let next, nextDraft, nextUpdate, nextMode = mode, nextSource = "", nextTopic = "", summary = "";
     const json = raw.trim().startsWith("{");
@@ -459,7 +468,13 @@ async function recover(raw) {
     }
     confirmDialog("Substituir o rascunho?", "A ficha atual ser\xE1 substitu\xEDda por " + (next.character.identity.name || "um personagem sem nome") + ". Guarde um backup se quiser manter o rascunho atual.", accept);
   } catch (e) {
-    $("#import-error").textContent = e.message;
+    const message = e.message;
+    $("#import-error").textContent = message;
+    if (status) status.textContent = message;
+    toast(message);
+  } finally {
+    recovering = false;
+    if (status?.textContent === "Carregando ficha\u2026") status.textContent = "Confira a ficha na janela de confirma\xE7\xE3o.";
   }
 }
 function action(target) {
