@@ -3,7 +3,7 @@ import { exportCompactHTML } from "./compact.js";
 const REQUEST_PREFIX = "RD-UPDATE:";
 function forumTopic(value) {
   const url = new URL(value);
-  if (url.origin !== "https://romance-dawn-oprpg.forumeiros.com" || url.username || url.password || !(/^\/t\d+(?:-|$)/.test(url.pathname) || url.pathname === "/viewtopic" && /^\d+$/.test(url.searchParams.get("t") || ""))) throw new Error("Use o link de um t\xF3pico do Romance Dawn.");
+  if (url.origin !== "https://romance-dawn-oprpg.forumeiros.com" || url.username || url.password || !(/^\/t\d+(?:p\d+)?(?:-|$)/.test(url.pathname) || url.pathname === "/viewtopic" && /^\d+$/.test(url.searchParams.get("t") || ""))) throw new Error("Use o link de um t\xF3pico do Romance Dawn.");
   for (const key of [...url.searchParams.keys()]) if (!["t", "p", "start"].includes(key)) url.searchParams.delete(key);
   return url;
 }

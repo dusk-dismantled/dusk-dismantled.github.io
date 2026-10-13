@@ -1013,7 +1013,7 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
   var REQUEST_PREFIX = "RD-UPDATE:";
   function forumTopic(value) {
     const url = new URL(value);
-    if (url.origin !== "https://romance-dawn-oprpg.forumeiros.com" || url.username || url.password || !(/^\/t\d+(?:-|$)/.test(url.pathname) || url.pathname === "/viewtopic" && /^\d+$/.test(url.searchParams.get("t") || ""))) throw new Error("Use o link de um t\xF3pico do Romance Dawn.");
+    if (url.origin !== "https://romance-dawn-oprpg.forumeiros.com" || url.username || url.password || !(/^\/t\d+(?:p\d+)?(?:-|$)/.test(url.pathname) || url.pathname === "/viewtopic" && /^\d+$/.test(url.searchParams.get("t") || ""))) throw new Error("Use o link de um t\xF3pico do Romance Dawn.");
     for (const key of [...url.searchParams.keys()]) if (!["t", "p", "start"].includes(key)) url.searchParams.delete(key);
     return url;
   }
@@ -1110,12 +1110,10 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
     if (!first || author(first) !== Number(window._userdata?.user_id) || !doc.title.toLocaleLowerCase().includes(name.toLocaleLowerCase())) throw new Error("Informe o t\xF3pico de Atualiza\xE7\xF5es do seu personagem, criado pela sua conta.");
   }
   async function loadForumSheet(value, template, ownerOnly = false) {
-    const url = forumTopic(value), doc = await forumDocument(url.href), postId = url.hash.match(/^#p?(\d+)$/)?.[1] || url.searchParams.get("p");
-    const posts = [...doc.querySelectorAll(".post")].filter((n) => n.querySelector('ficha[versao="2"],.rd-sheet[data-rd-state]'));
-    const direct = postId ? posts.filter((p) => p.id.replace(/^p/, "") === postId) : posts;
-    const matches = direct.length ? direct : posts.length === 1 ? posts : [];
-    if (matches.length !== 1) throw new Error("Use o link direto da postagem que cont\xE9m a ficha. A p\xE1gina deve identificar uma \xFAnica ficha.");
-    const post = matches[0], id = post.id.match(/^p?(\d+)$/)?.[1];
+    const url = forumTopic(value), doc = await forumDocument("/viewtopic?t=" + topicId(url));
+    const post = doc.querySelector(".post");
+    if (!post?.querySelector('ficha[versao="2"],.rd-sheet[data-rd-state]')) throw new Error("A primeira postagem deste t\xF3pico n\xE3o cont\xE9m uma ficha reconhecida.");
+    const id = post.id.match(/^p?(\d+)$/)?.[1];
     if (!id) throw new Error("A postagem da ficha n\xE3o p\xF4de ser identificada.");
     const project = await importForumHTML(post.innerHTML, template), authorId = author(post);
     if (ownerOnly && authorId !== Number(window._userdata?.user_id)) throw new Error("Voc\xEA s\xF3 pode solicitar atualiza\xE7\xF5es da ficha publicada pela sua conta. Para editar a ficha de outro jogador como Staff, use o m\xF3dulo Editar ficha.");
