@@ -38,7 +38,7 @@ if (!document.getElementById('rd-bord-app-loader')) {
 
 O lançador adiciona o botão, o modal, as fontes e a folha de estilos externa da ficha. Não é necessário copiar o CSS para cada postagem nem alterar as cores da skin. HTML deve estar habilitado no fórum e no perfil do jogador.
 
-A criação e a solicitação de atualização estão liberadas para membros logados. A edição direta exige associação ao grupo Staff (`g1`), verificada na seção de grupos de que o usuário é membro em `/groups`. Cor do nome e cargo de administrador não concedem acesso à edição. As fontes e os estilos das fichas continuam disponíveis para todos os leitores.
+A criação, a solicitação de atualização e a edição estão disponíveis para membros logados. Jogadores só podem editar a própria ficha enquanto ela estiver em Criação de Personagens (f12); depois da aprovação, devem solicitar atualização. Autoria e área são verificadas ao carregar, preparar e confirmar a gravação. A Staff (`g1`, verificada em `/groups`) pode editar qualquer ficha e importar solicitações. As fontes e os estilos das fichas continuam disponíveis para todos os leitores.
 
 Use `window.ROMANCE_DAWN_APP_ACCESS = 'members'` para o acesso ao botão. O aplicativo estático no GitHub Pages continua público; operações no fórum usam a sessão do usuário e verificam suas permissões novamente antes de enviar.
 

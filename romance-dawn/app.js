@@ -15,6 +15,7 @@ let project = freshProject(), draft = clone(project.character), update = proposa
 let rules = null, pasts = [];
 let forumConnected = false, publicationPending = null, publicationStatus = "", publicationURL = "";
 let canUpdate = window.parent === window && ["localhost", "127.0.0.1"].includes(location.hostname);
+let isStaff = canUpdate;
 let canEdit = canUpdate, sourceURL = "", topicURL = "", preparedRequest = null, requestSummary = "";
 let recovering = false;
 const documentRequests = /* @__PURE__ */ new Map();
@@ -255,14 +256,14 @@ function updateEditor() {
   return html + '<div class="section-actions"><button data-action="add-training">+ Treinamento</button></div>' + field("Observa\xE7\xF5es / exce\xE7\xF5es aprovadas", "update.notes", update.notes, "textarea");
 }
 function review() {
-  if (mode === "edit") return '<h3>Edi\xE7\xE3o da Staff</h3><p class="hint">Confira a pr\xE9via completa. A edi\xE7\xE3o ser\xE1 gravada na postagem original ap\xF3s confirma\xE7\xE3o no f\xF3rum. Nenhum limite de cria\xE7\xE3o ou custo de atualiza\xE7\xE3o \xE9 aplicado neste m\xF3dulo.</p>' + workflowFields() + (requestSummary ? "<h3>Solicita\xE7\xE3o importada</h3><pre>" + escape(requestSummary) + "</pre>" : "") + publicationControls() + "<h3>Registros locais de edi\xE7\xE3o</h3>" + historyHTML();
+  if (mode === "edit") return '<h3>Editar ficha</h3><p class="hint">' + (isStaff ? "Confira a pr\xE9via e confirme a edi\xE7\xE3o na postagem original. A Staff pode editar fichas aprovadas e importar solicita\xE7\xF5es." : "Edite somente sua pr\xF3pria ficha em Cria\xE7\xE3o de Personagens. Depois da aprova\xE7\xE3o, utilize Solicitar atualiza\xE7\xE3o.") + "</p>" + workflowFields() + (requestSummary ? "<h3>Solicita\xE7\xE3o importada</h3><pre>" + escape(requestSummary) + "</pre>" : "") + publicationControls() + "<h3>Registros locais de edi\xE7\xE3o</h3>" + historyHTML();
   if (mode === "update") return updateEditor() + '<div class="section-actions"><button class="primary" data-action="review-update">Conferir solicita\xE7\xE3o de atualiza\xE7\xE3o</button><button data-action="discard">Descartar proposta</button></div>' + publicationControls() + "<h3>Di\xE1rio de aventuras</h3>" + historyHTML();
   const issues = [...creationIssues(draft), ...catalogIssues(draft, pasts)];
   return '<h3>Confer\xEAncia antes de zarpar</h3><p class="hint">Confira a pr\xE9via e as escolhas antes de enviar sua Vivre Card \xE0 equipe. O envio n\xE3o substitui a avalia\xE7\xE3o das regras e dos benef\xEDcios espec\xEDficos do personagem.</p>' + issuesHTML(issues) + publicationControls() + historyHTML();
 }
 function publicationPayload() {
   if (mode === "edit") {
-    if (!canEdit) throw new Error("Edi\xE7\xE3o dispon\xEDvel apenas para a Staff.");
+    if (!canEdit) throw new Error("Entre no forum para editar sua ficha em criacao.");
     forumTopic(sourceURL);
     return { kind: "edit", base: project, project: currentProject(), sourceURL };
   }
@@ -335,7 +336,7 @@ function renderEditor() {
     $("#launcher").hidden = false;
     return;
   }
-  $("#module-title").textContent = mode === "create" ? "Criar Vivre Card" : mode === "edit" ? "Editar Vivre Card \u2014 Staff" : "Solicitar atualiza\xE7\xE3o";
+  $("#module-title").textContent = mode === "create" ? "Criar Vivre Card" : mode === "edit" ? "Editar Vivre Card" : "Solicitar atualiza\xE7\xE3o";
   $("#steps").innerHTML = steps.map(([key2, label2], i) => '<button data-action="step" data-index="' + i + '"' + (i === step ? ' aria-current="step"' : "") + ">" + String(i + 1).padStart(2, "0") + " " + (mode === "update" && key2 === "review" ? "Registro" : label2) + "</button>").join("");
   if (mode === "create") syncCreationRecovery(draft);
   const [key, label] = steps[step];
@@ -403,7 +404,7 @@ async function recover(raw) {
     const json = raw.trim().startsWith("{");
     const requestCode = raw.trim().startsWith("RD-UPDATE:") ? raw.trim() : new DOMParser().parseFromString(raw, "text/html").querySelector(".rd-request-code")?.textContent?.trim();
     if (requestCode) {
-      if (mode !== "edit" || !canEdit) throw new Error("Abra Edi\xE7\xE3o de Ficha \u2014 Staff para importar uma solicita\xE7\xE3o.");
+      if (mode !== "edit" || !isStaff) throw new Error("Abra Edi\xE7\xE3o de Ficha \u2014 Staff para importar uma solicita\xE7\xE3o.");
       const request = await decodeRequest(requestCode), result = requestPlan(request);
       next = request.base;
       nextDraft = result.character;
@@ -439,7 +440,7 @@ async function recover(raw) {
         }
       }
     }
-    if (nextMode === "edit" && !canEdit) throw new Error("Edi\xE7\xE3o dispon\xEDvel apenas para a Staff.");
+    if (nextMode === "edit" && !canEdit) throw new Error("Entre no forum para editar sua ficha em criacao.");
     const accept = () => {
       project = next;
       draft = nextDraft ?? clone(next.character);
@@ -619,7 +620,7 @@ async function main() {
   editModule.id = "edit-module";
   editModule.type = "button";
   editModule.hidden = !canEdit;
-  editModule.innerHTML = "<small>03 / ARQUIVO DA STAFF</small><strong>Editar ficha</strong><span>Carregue uma ficha ou solicita\xE7\xE3o, confira a pr\xE9via e grave na postagem original.</span><b>Conferir o registro \u2197</b>";
+  editModule.innerHTML = "<small>03 / VIVRE CARD</small><strong>Editar ficha</strong><span>Edite sua ficha em cria\xE7\xE3o. Ap\xF3s a aprova\xE7\xE3o, solicite uma atualiza\xE7\xE3o.</span><b>Conferir o registro \u2197</b>";
   document.querySelector(".module-cards").append(editModule);
   editModule.onclick = () => {
     if (canEdit) {
@@ -776,9 +777,10 @@ async function main() {
       forumConnected = event.data.connected === true;
       canUpdate = forumConnected && event.data.canUpdate === true;
       canEdit = forumConnected && event.data.canEdit === true;
+      isStaff = forumConnected && event.data.isStaff === true;
       $("#update-module").hidden = !canUpdate;
       $("#edit-module").hidden = !canEdit;
-      $("#import-request-link").hidden = !canEdit;
+      $("#import-request-link").hidden = !isStaff;
       if (mode === "update" && !canUpdate || mode === "edit" && !canEdit) {
         $("#workspace").hidden = true;
         $("#launcher").hidden = false;
