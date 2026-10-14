@@ -196,7 +196,7 @@ function collection(kind) {
         const match = pasts.find((p) => p.name.toLocaleLowerCase("pt-BR") === e.fields.name.trim().toLocaleLowerCase("pt-BR"));
         choices = match?.recovery.length ? [.../* @__PURE__ */ new Set([...match.recovery, ...e.fields.recovery ? [e.fields.recovery] : []])] : ATTRIBUTES.slice(0, -1);
       }
-      if (key === "grade") choices = kind === "professions" ? ["Treinado", "Proficiente", "Competente", "Perito", "Mestre"] : kind === "styles" ? ["Treinado", "Not\xE1vel", "Perito", "Ex\xEDmio", "Mestre"] : GRADES;
+      if (key === "grade") choices = kind === "professions" || kind === "styles" ? ["Treinado", "Not\xE1vel", "Perito", "Ex\xEDmio", "Mestre"] : GRADES;
       if (["quantity", "load"].includes(key)) type = "number";
       html += field(label, "character.collections." + kind + "." + index + ".fields." + key, e.fields[key], type, choices);
     }
