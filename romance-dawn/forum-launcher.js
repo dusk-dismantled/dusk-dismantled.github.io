@@ -1085,6 +1085,7 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
     return Number(link?.getAttribute("href")?.match(/\/u(\d+)/)?.[1]);
   }
   async function findUpdateTopic(name) {
+    name = name.trim();
     const queue = ["/f22-atualizacoes"], seen = /* @__PURE__ */ new Set();
     while (queue.length && seen.size < 50) {
       const path = queue.shift();
@@ -1104,6 +1105,7 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
     return false;
   }
   async function checkUpdateTopic(url, name) {
+    name = name.trim();
     const doc = await forumDocument(url.href);
     if (![...doc.querySelectorAll("a[href]")].some((a) => /^\/f22(?:-|$)/.test(new URL(a.getAttribute("href"), FORUM_ORIGIN).pathname))) throw new Error("O t\xF3pico informado n\xE3o pertence \xE0 \xE1rea de Atualiza\xE7\xF5es.");
     const first = doc.querySelector(".post");
