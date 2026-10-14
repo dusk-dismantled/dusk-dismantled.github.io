@@ -8,7 +8,7 @@ function forumTopic(value) {
   return url;
 }
 async function fingerprint(character) {
-  const bytes = new TextEncoder().encode(JSON.stringify(validateCharacter(character)));
+  const bytes = new TextEncoder().encode(JSON.stringify(validateCharacter(character), (_key, value) => typeof value === "string" ? value.replace(/\r\n/g, "\n").replace(/\u00a0/g, " ").replace(/[ \t]+$/gm, "") : value));
   return [...new Uint8Array(await crypto.subtle.digest("SHA-256", bytes))].map((n) => n.toString(16).padStart(2, "0")).join("");
 }
 function requestPlan(request) {
