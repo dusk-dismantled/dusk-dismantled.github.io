@@ -1,4 +1,4 @@
-import { ATTRIBUTES, COLLECTIONS, DREAMS, GEMS, GRADES, HAKI_DICE, capacity, loadTotal, parseProject, validateCharacter } from "./model.js";
+import { ATTRIBUTES, COLLECTIONS, GEMS, GRADES, hakiDice, capacity, loadTotal, parseProject, validateCharacter } from "./model.js";
 import { compactRoot, importCompactHTML } from "./compact.js";
 const NAVIGATION_CSS = Array.from({ length: 100 }, (_, i) => `
 .rd-sheet .rd-app-selector>input:nth-of-type(${i + 1}):checked~.rd-talent-panels>:nth-child(${i + 1}){display:block}
@@ -300,7 +300,7 @@ function fill(root, c) {
     put(n, ".rd-record-text", e.fields.notes);
     return n;
   });
-  const dice = HAKI_DICE[DREAMS.indexOf(c.identity.dream)];
+  const dice = hakiDice(c);
   combat.querySelectorAll(".rd-haki-card").forEach((n, i) => {
     record(n, "Dado de Haki", dice ? "d" + dice[i] : "\u2014");
     record(n, "Despertou?", c.haki[i].awakened);

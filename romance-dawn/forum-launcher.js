@@ -130,6 +130,13 @@
   var GENERATIONS = ["Aspirantes", "Nova Gera\xE7\xE3o", "Lobo do Mar", "Apogeu", "Antiga Gera\xE7\xE3o"];
   var DREAMS = ["Conhecimento pelo companheirismo", "Liberdade pelo companheirismo", "Poder pelo companheirismo", "Conhecimento pela for\xE7a", "Liberdade pela for\xE7a", "Poder pela for\xE7a", "Conhecimento pela engana\xE7\xE3o", "Liberdade pela engana\xE7\xE3o", "Poder pela engana\xE7\xE3o"];
   var HAKI_DICE = [[8, 10, 6], [8, 8, 8], [10, 8, 6], [10, 10, 4], [10, 8, 6], [12, 8, 4], [12, 8, 4], [8, 10, 6], [10, 10, 4]];
+  function hakiDice(character) {
+    const base = HAKI_DICE[DREAMS.indexOf(character.identity.dream)];
+    if (!base) return null;
+    const dice = [...base];
+    if (/\bbirkans?\b/i.test(character.identity.species)) dice[1] = Math.min(12, dice[1] + 2);
+    return dice;
+  }
   var IDENTITY_FIELDS = { name: "Nome", nickname: "Alcunha", age: "Idade", species: "Esp\xE9cie", generation: "Gera\xE7\xE3o", crew: "Fac\xE7\xE3o / tripula\xE7\xE3o", tier: "Tier", bounty: "Recompensa", dream: "Classifica\xE7\xE3o do sonho", dreamText: "Sonho do personagem", laugh: "Risada", location: "Localiza\xE7\xE3o atual", personality: "Personalidade", appearance: "Apar\xEAncia", history: "Hist\xF3ria", territories: "Territ\xF3rios conquistados", cover: "Imagem de fundo (URL)", portrait: "Retrato (URL)" };
   var VITAL_FIELDS = { health: "Sa\xFAde total", healthIncreases: "Aumentos de Sa\xFAde usados", movement: "Deslocamento padr\xE3o (m)", swimming: "Deslocamento de nata\xE7\xE3o (m)" };
   var COLLECTIONS = {
@@ -907,7 +914,7 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
       put(n, ".rd-record-text", e.fields.notes);
       return n;
     });
-    const dice = HAKI_DICE[DREAMS.indexOf(c.identity.dream)];
+    const dice = hakiDice(c);
     combat.querySelectorAll(".rd-haki-card").forEach((n, i) => {
       record(n, "Dado de Haki", dice ? "d" + dice[i] : "\u2014");
       record(n, "Despertou?", c.haki[i].awakened);
