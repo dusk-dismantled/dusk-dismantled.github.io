@@ -657,3 +657,5 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
 .rd-sheet .rd-app-selector>input:nth-of-type(100):checked~.rd-talent-panels>:nth-child(100){display:block}
 .rd-sheet .rd-app-selector>input:nth-of-type(100):checked~.rd-talent-list>label:nth-child(100){background:linear-gradient(135deg,var(--rd-blue),var(--rd-wine));border-color:var(--rd-gold)}
 .rd-sheet .rd-app-selector>input:nth-of-type(100):focus-visible~.rd-talent-list>label:nth-child(100){outline:2px solid var(--rd-gold);outline-offset:2px}
+
+.rd-technique{box-sizing:border-box;max-width:900px;margin:20px auto;padding:24px;border:1px solid #7776;border-radius:12px;line-height:1.7;overflow-wrap:anywhere}.rd-technique h2{margin-top:0}.rd-technique li{margin:8px 0}

@@ -62,7 +62,7 @@ function publishedTopic(doc, responseURL, characterId) {
     }
   };
   const direct = topic(responseURL);
-  if (direct && ([...doc.querySelectorAll(".rd-sheet")].some((n) => n.id === characterId) || [...doc.querySelectorAll('ficha[versao="2"]>id')].some((n) => n.textContent === characterId))) return direct;
+  if (direct && ([...doc.querySelectorAll(".rd-sheet,.rd-technique")].some((n) => n.id === characterId) || [...doc.querySelectorAll('ficha[versao="2"]>id')].some((n) => n.textContent === characterId))) return direct;
   const text = doc.body?.textContent || "";
   if (doc.querySelector('form textarea[name="message"]') || /mensagem[\s\S]{0,30}não[\s\S]{0,40}(?:enviad|publicad|registrad)/i.test(text)) return null;
   if (!/(?:mensagem|message)[\s\S]{0,100}(?:enviad|publicad|registrad|atualizad|alterad|modificad|posted|entered|updated|edited)|tópico[\s\S]{0,60}criado/i.test(text)) return null;

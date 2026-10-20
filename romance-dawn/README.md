@@ -1,5 +1,7 @@
 # Romance Dawn — Diário de Bordo
 
+O cartão **Criar técnica** abre o criador com fontes de poder, efeitos, redutores, custos automáticos, prévia e backup próprio. O envio cria um tópico em Criação de Personagens (f12) ou responde ao tópico informado dessa área, após confirmação no fórum. Consulte `docs/technique-creator.md` no projeto para os limites e detalhes de validação.
+
 Aplicativo desktop de criação e atualização de Vivre Cards. O formulário preenche o modelo original de 900 px. O jogador confere a prévia e envia a ficha para avaliação diretamente no fórum, com a conta já conectada. Não há exportação de HTML/CSS na interface; o backup JSON continua disponível.
 
 ## Hospedagem

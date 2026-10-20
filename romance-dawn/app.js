@@ -3,6 +3,7 @@ import { APP_SHEET_CSS, importHTML, renderCharacter } from "./renderer.js";
 import { FORUM_ORIGIN, preparePublication } from "./posting.js";
 import { catalogIssues, pastCatalog } from "./catalog.js";
 import { decodeRequest, forumTopic, requestPlan } from "./workflows.js";
+import { installTechniqueEditor } from "./technique-editor.js";
 const $ = (selector) => {
   const node = document.querySelector(selector);
   if (!node) throw new Error("Elemento ausente: " + selector);
@@ -809,6 +810,8 @@ async function main() {
       refreshPublicationStatus();
     }
   });
+  installTechniqueEditor();
+  $("#create-module").disabled = false;
   if (window.parent !== window && document.referrer) {
     const parentOrigin = new URL(document.referrer).origin;
     window.parent.postMessage({ type: "romance-dawn-ready" }, parentOrigin);
