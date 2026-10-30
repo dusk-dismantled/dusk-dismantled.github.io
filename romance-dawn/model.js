@@ -4,7 +4,7 @@ const FACTIONS = { auto: "Grupo do autor no f\xF3rum", pirate: "Piratas", marine
 const GRADES = ["Inexperiente", "Novato", "Treinado", "Not\xE1vel", "Perito", "Ex\xEDmio", "Mestre", "\xC1pice"];
 const GENERATIONS = ["Aspirantes", "Nova Gera\xE7\xE3o", "Lobo do Mar", "Apogeu", "Antiga Gera\xE7\xE3o"];
 const DREAMS = ["Conhecimento pelo companheirismo", "Liberdade pelo companheirismo", "Poder pelo companheirismo", "Conhecimento pela for\xE7a", "Liberdade pela for\xE7a", "Poder pela for\xE7a", "Conhecimento pela engana\xE7\xE3o", "Liberdade pela engana\xE7\xE3o", "Poder pela engana\xE7\xE3o"];
-const HAKI_DICE = [[8, 10, 6], [8, 8, 8], [10, 8, 6], [10, 10, 4], [10, 8, 6], [12, 8, 4], [12, 8, 4], [8, 10, 6], [10, 10, 4]];
+const HAKI_DICE = [[8, 10, 6], [8, 8, 8], [10, 8, 6], [10, 10, 4], [10, 8, 6], [12, 8, 4], [8, 12, 4], [8, 10, 6], [10, 10, 4]];
 function hakiDice(character) {
   const base = HAKI_DICE[DREAMS.indexOf(character.identity.dream)];
   if (!base) return null;
