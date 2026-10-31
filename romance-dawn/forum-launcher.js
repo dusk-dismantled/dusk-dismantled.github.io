@@ -1646,6 +1646,9 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
             const label = document.createElement("label"), checked = document.createElement("input");
             checked.type = "checkbox";
             label.append(checked, document.createTextNode(" Conferi a \xE1rea e minha ficha n\xE3o foi publicada."));
+            const controls = document.createElement("style");
+            controls.textContent = '#rd-publication-recovery input[type=checkbox]{appearance:none;-webkit-appearance:none;display:inline-grid;place-content:center;box-sizing:border-box;width:18px;height:18px;min-width:18px;margin:0 6px 0 0;padding:0;vertical-align:middle;border:2px solid #e6bd78;border-radius:3px;background:#272633;cursor:pointer}#rd-publication-recovery input[type=checkbox]::before{content:"";width:10px;height:6px;border-left:2px solid #272633;border-bottom:2px solid #272633;transform:translateY(-1px) rotate(-45deg);visibility:hidden}#rd-publication-recovery input[type=checkbox]:checked{background:#e6bd78}#rd-publication-recovery input[type=checkbox]:checked::before{visibility:visible}#rd-publication-recovery input[type=checkbox]:focus-visible{outline:2px solid #f5eee1;outline-offset:3px}@media(forced-colors:active){#rd-publication-recovery input[type=checkbox]{appearance:auto;-webkit-appearance:auto}#rd-publication-recovery input[type=checkbox]::before{content:none}}';
+            dialog.append(controls);
             const release = document.createElement("button");
             release.type = "button";
             release.textContent = "Liberar nova tentativa";
