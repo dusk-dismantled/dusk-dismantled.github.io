@@ -206,7 +206,7 @@ function syncPastRecovery(c) {
   }
 }
 function proposal() {
-  return { id: newId(), title: "", reference: "", notes: "", gains: Object.fromEntries(GEMS.map((k) => [k, 0])), spending: Object.fromEntries(GEMS.map((k) => [k, 0])), berryGain: 0, berryCost: 0, daysGained: 0, daysSpent: 0, training: [] };
+  return { id: newId(), title: "", reference: "", notes: "", gains: Object.fromEntries(GEMS.map((k) => [k, 0])), spending: Object.fromEntries(GEMS.map((k) => [k, 0])), berryGain: 0, berryCost: 0, daysGained: 0, daysSpent: 0, preGame: false, training: [] };
 }
 const RUBY_COST = [0, 2, 3, 4, 5, 7, 9, 12, 15, 18, 22, 30, 40];
 function trainingCost(base, p) {
@@ -243,6 +243,7 @@ function planUpdate(project, draft, p) {
   if (next.id !== base.id) fail("A proposta pertence a outra ficha.");
   if (project.history.some((h) => h.id === p.id)) fail("Esta atualiza\xE7\xE3o j\xE1 foi confirmada.");
   if (!p.title.trim() || !p.reference.trim()) fail("Informe a aventura e a refer\xEAncia da aprova\xE7\xE3o.");
+  if (p.preGame !== void 0 && typeof p.preGame !== "boolean") fail("Op\xE7\xE3o de atualiza\xE7\xE3o pr\xE9-jogo inv\xE1lida.");
   for (const x of [...Object.values(p.gains), ...Object.values(p.spending), p.berryGain, p.berryCost, p.daysGained, p.daysSpent]) number(x, 0, Number.MAX_SAFE_INTEGER);
   const costs = trainingCost(base, p);
   const lines = ["Aventura: " + p.title, "Refer\xEAncia: " + p.reference];
@@ -259,7 +260,9 @@ function planUpdate(project, draft, p) {
     lines.push(k + ": " + (before.owned ?? 0) + " + " + p.gains[k] + " \u2212 " + cost + " = " + owned + "; total gasto registrado " + next.gems[k].spent);
   }
   next.berries = p.berryGain || p.berryCost ? (base.berries ?? 0) + p.berryGain - p.berryCost : base.berries;
-  const daysUsed = p.daysSpent + costs.days;
+  const trainingDays = p.preGame ? 0 : costs.days;
+  if (p.preGame) lines.push("Atualiza\xE7\xE3o anterior ao in\xEDcio do jogo: " + costs.days + " dias de treinamento dispensados. Custos em Gemas mantidos.");
+  const daysUsed = p.daysSpent + trainingDays;
   next.downtime = p.daysGained || daysUsed ? (base.downtime ?? 0) + p.daysGained - daysUsed : base.downtime;
   if (next.berries !== null && next.berries < 0) fail("Saldo insuficiente de Berrys.");
   if (next.downtime !== null && next.downtime < 0) fail("Tempo de Inatividade insuficiente.");

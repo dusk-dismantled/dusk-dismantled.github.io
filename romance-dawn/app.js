@@ -89,6 +89,7 @@ function restore() {
   }
 }
 function planUpdateForRestore() {
+  if (update?.preGame !== void 0 && typeof update.preGame !== "boolean") throw new Error("Op\xE7\xE3o pr\xE9-jogo inv\xE1lida.");
   if (!update || typeof update.id !== "string" || !Array.isArray(update.training) || !update.gains || !update.spending) throw new Error("Proposta inv\xE1lida.");
   for (const s of [update.title, update.reference, update.notes]) if (typeof s !== "string") throw new Error("Proposta inv\xE1lida.");
   for (const n of [...Object.values(update.gains), ...Object.values(update.spending), update.berryGain, update.berryCost, update.daysGained, update.daysSpent]) if (typeof n !== "number" || !Number.isFinite(n) || n < 0) throw new Error("Proposta inv\xE1lida.");
@@ -179,7 +180,7 @@ function writePath(path, value) {
     node = node[b];
   }
   const last = bits.at(-1);
-  if (!Object.hasOwn(node, last) && !(node === draft && ["capacityAttribute", "capacityOverride"].includes(last))) throw new Error("Campo inv\xE1lido.");
+  if (!Object.hasOwn(node, last) && !(node === update && last === "preGame") && !(node === draft && ["capacityAttribute", "capacityOverride"].includes(last))) throw new Error("Campo inv\xE1lido.");
   node[last] = value;
 }
 function ruleLink(key) {
@@ -253,6 +254,7 @@ function backpack() {
 function updateEditor() {
   let html = workflowFields() + '<h3>Recompensas da aventura</h3><p class="hint">Informe os comprovantes de cada premia\xE7\xE3o, incluindo itens. A Staff confere o pedido antes de modificar sua ficha oficial. Para melhorias sem custo autom\xE1tico, informe os gastos manuais e explique nas observa\xE7\xF5es.</p>' + field("Aventura / t\xEDtulo do registro", "update.title", update.title) + field("Link ou refer\xEAncia da aprova\xE7\xE3o", "update.reference", update.reference, "textarea") + '<div class="fields">' + field("Berrys recebidos", "update.berryGain", update.berryGain, "number") + field("Berrys gastos", "update.berryCost", update.berryCost, "number") + "</div>";
   for (const gem of GEMS) html += '<div class="gem-row"><strong>' + gem + "</strong>" + field(gem + " recebidos", "update.gains." + gem, update.gains[gem], "number") + field(gem + " gastos manuais", "update.spending." + gem, update.spending[gem], "number") + "</div>";
+  html += '<label class="field"><span><input type="checkbox" data-path="update.preGame"' + (update.preGame ? " checked" : "") + "> Atualiza\xE7\xE3o antes do in\xEDcio do jogo \u2014 dispensar dias de treinamento</span></label>";
   html += '<p class="hint">Gastos manuais cobrem melhorias espec\xEDficas e exce\xE7\xF5es aprovadas. N\xE3o repita aqui os custos dos treinamentos autom\xE1ticos abaixo. Os saldos da Mochila s\xE3o calculados automaticamente com os valores deste Registro. Saldos anteriores vazios n\xE3o acrescentam recursos ao c\xE1lculo.</p><div class="fields">' + field("Dias de Inatividade recebidos", "update.daysGained", update.daysGained, "number") + field("Dias usados em outras atividades", "update.daysSpent", update.daysSpent, "number") + '</div><h3>Treinamentos</h3><p class="hint">Atributos: custo em Rubis por ponto e 5 dias por ponto. Recupera\xE7\xE3o: Safiras por patamar e 25 dias por patamar. Registre descontos e exce\xE7\xF5es como edi\xE7\xE3o manual aprovada.</p>';
   update.training.forEach((t, i) => html += '<div class="entry"><div class="fields">' + field("Tipo de treino", "update.training." + i + ".kind", t.kind, "text", ["attribute", "recovery"]) + field("Atributo do treino", "update.training." + i + ".attribute", t.attribute, "text", ATTRIBUTES) + field("Valor / faces desejados", "update.training." + i + ".target", t.target, "number") + '</div><button data-action="remove-training" data-index="' + i + '">Remover treino</button></div>');
   return html + '<div class="section-actions"><button data-action="add-training">+ Treinamento</button></div>' + field("Observa\xE7\xF5es / exce\xE7\xF5es aprovadas", "update.notes", update.notes, "textarea");
@@ -369,7 +371,7 @@ function enter(nextMode) {
   persist();
 }
 function hasPending() {
-  return JSON.stringify(draft) !== JSON.stringify(project.character) || update.training.length > 0 || !!update.title || !!update.reference || !!update.notes || [...Object.values(update.gains), ...Object.values(update.spending), update.berryGain, update.berryCost, update.daysGained, update.daysSpent].some((n) => n !== 0);
+  return !!update.preGame || JSON.stringify(draft) !== JSON.stringify(project.character) || update.training.length > 0 || !!update.title || !!update.reference || !!update.notes || [...Object.values(update.gains), ...Object.values(update.spending), update.berryGain, update.berryCost, update.daysGained, update.daysSpent].some((n) => n !== 0);
 }
 function confirmDialog(title, summary, callback, approval = false) {
   $("#confirm-title").textContent = title;
@@ -727,7 +729,7 @@ async function main() {
     try {
       let value = input.value;
       if (path === "character.capacityAttribute" && !value) value = "For\xE7a";
-      if (typeof old === "boolean") value = input.checked;
+      if (typeof old === "boolean" || path === "update.preGame") value = input.checked;
       else if (typeof old === "number" || old === null || path === "character.capacityOverride") {
         const required = path.startsWith("update.") || /\.attributes\.[^.]+\.(value|recovery)$/.test(path);
         value = input.value === "" ? required ? 0 : null : Number(input.value);
