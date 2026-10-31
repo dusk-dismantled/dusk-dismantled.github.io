@@ -611,13 +611,13 @@
     }
     return null;
   }
-  function publicationChallenge(doc, forum, postId) {
+  function publicationChallenge(doc, forum, postId, topicId2) {
     const copy = doc.body?.cloneNode(true);
     copy?.querySelectorAll("script,style,input,textarea").forEach((n) => n.remove());
     if (!/verificação anti-spam/i.test(copy?.textContent || "")) return false;
     return [...doc.forms].some((form) => {
       const url = new URL(form.getAttribute("action") || "/post", FORUM_ORIGIN);
-      const destination = forum === 0 ? !!postId && form.querySelector('[name="p"]')?.value === postId : form.querySelector('[name="f"]')?.value === String(forum);
+      const destination = postId ? form.querySelector('[name="p"]')?.value === postId : topicId2 ? form.querySelector('[name="t"]')?.value === topicId2 : form.querySelector('[name="f"]')?.value === String(forum);
       return url.origin === FORUM_ORIGIN && url.pathname === "/post" && form.method === "post" && destination && !!form.querySelector('[name="post_confirm"]');
     });
   }
@@ -1732,7 +1732,7 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
               const response = await fetch("/post", { method: "POST", credentials: "same-origin", body: multipart });
               const doc = new DOMParser().parseFromString(await response.text(), "text/html");
               let url = publishedTopic(doc, response.url, publication.characterId);
-              if (!url && publicationChallenge(doc, publication.forum, publication.postId)) {
+              if (!url && publicationChallenge(doc, publication.forum, publication.postId, publication.topicId)) {
                 status.textContent = "A Forumeiros exige uma verifica\xE7\xE3o anti-spam. Continue na janela do f\xF3rum e conclua a verifica\xE7\xE3o pelo bot\xE3o Salvar. Sua ficha ainda n\xE3o foi publicada.";
                 confirm.hidden = true;
                 const native = document.createElement("button");
