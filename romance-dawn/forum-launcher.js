@@ -370,18 +370,24 @@
     const lines = ["Aventura: " + p.title, "Refer\xEAncia: " + p.reference];
     for (const k of GEMS) {
       const before = base.gems[k], cost = p.spending[k] + costs.gems[k];
-      if (before.owned === null || before.spent === null) fail("Informe o saldo e o total gasto de " + k + " na ficha-base.");
-      const owned = before.owned + p.gains[k] - cost;
+      if (!p.gains[k] && !cost) {
+        next.gems[k] = { ...before };
+        continue;
+      }
+      const owned = (before.owned ?? 0) + p.gains[k] - cost;
       if (owned < 0) fail("Saldo insuficiente de " + k + ".");
-      next.gems[k] = { owned, spent: before.spent + cost };
-      if (p.gains[k] || cost) lines.push(k + ": " + before.owned + " + " + p.gains[k] + " \u2212 " + cost + " = " + owned + "; total gasto " + next.gems[k].spent);
+      next.gems[k] = { owned, spent: (before.spent ?? 0) + cost };
+      if (before.owned === null || before.spent === null) lines.push(k + ": campos anteriores n\xE3o informados considerados 0 neste c\xE1lculo.");
+      lines.push(k + ": " + (before.owned ?? 0) + " + " + p.gains[k] + " \u2212 " + cost + " = " + owned + "; total gasto registrado " + next.gems[k].spent);
     }
-    if (base.berries === null || base.downtime === null) fail("Informe Berrys e Tempo de Inatividade na ficha-base.");
-    next.berries = base.berries + p.berryGain - p.berryCost;
-    next.downtime = base.downtime + p.daysGained - p.daysSpent - costs.days;
-    if (next.berries < 0) fail("Saldo insuficiente de Berrys.");
-    if (next.downtime < 0) fail("Tempo de Inatividade insuficiente.");
-    lines.push("Berrys: " + base.berries + " \u2192 " + next.berries, "Tempo de Inatividade: " + base.downtime + " \u2192 " + next.downtime + " dias", ...costs.lines);
+    next.berries = p.berryGain || p.berryCost ? (base.berries ?? 0) + p.berryGain - p.berryCost : base.berries;
+    const daysUsed = p.daysSpent + costs.days;
+    next.downtime = p.daysGained || daysUsed ? (base.downtime ?? 0) + p.daysGained - daysUsed : base.downtime;
+    if (next.berries !== null && next.berries < 0) fail("Saldo insuficiente de Berrys.");
+    if (next.downtime !== null && next.downtime < 0) fail("Tempo de Inatividade insuficiente.");
+    if (base.berries === null && (p.berryGain || p.berryCost)) lines.push("Berrys: saldo anterior n\xE3o informado considerado 0 neste c\xE1lculo.");
+    if (base.downtime === null && (p.daysGained || daysUsed)) lines.push("Tempo de Inatividade: saldo anterior n\xE3o informado considerado 0 neste c\xE1lculo.");
+    lines.push("Berrys: " + (base.berries ?? "n\xE3o informado") + " \u2192 " + (next.berries ?? "n\xE3o informado"), "Tempo de Inatividade: " + (base.downtime ?? "n\xE3o informado") + " \u2192 " + (next.downtime ?? "n\xE3o informado") + " dias", ...costs.lines);
     for (const t of p.training) if (t.kind === "attribute") next.attributes[t.attribute].value = t.target;
     else next.attributes[t.attribute].recovery = t.target;
     const labels = { ...IDENTITY_FIELDS, ...VITAL_FIELDS, ...Object.fromEntries(Object.entries(COLLECTIONS).map(([key, spec]) => [key, spec.label])), identity: "Identidade", attributes: "Atributos", value: "M\xE1ximo", recovery: "Recupera\xE7\xE3o", vitals: "Sa\xFAde e deslocamentos", fame: "Inf\xE2mia / Honra", influence: "Influ\xEAncia", skills: "Per\xEDcias", haki: "Hakis", collections: "Registros", faction: "Paleta da fac\xE7\xE3o", capacityAttribute: "Atributo de carga", capacityOverride: "Capacidade manual" };
