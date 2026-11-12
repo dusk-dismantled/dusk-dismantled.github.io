@@ -1,4 +1,4 @@
-import { EFFECTS, POWERS, GRADES, DAMAGE_TYPES, freshTechnique, parseTechnique, calculateTechnique, techniqueHTML } from "./techniques.js";
+import { EFFECTS, POWERS, GRADES, DAMAGE_TYPES, freshTechnique, parseTechnique, calculateTechnique, techniqueHTML, effectCost } from "./techniques.js";
 import { FORUM_ORIGIN } from "./posting.js";
 import { TECHNIQUE_HELP, TECHNIQUE_CONDITIONS } from "./technique-reference.js";
 function installTechniqueEditor() {
@@ -38,6 +38,10 @@ function installTechniqueEditor() {
   const preview = () => {
     try {
       const c = calculateTechnique(t);
+      for (const e of t.effects) {
+        const node = section.querySelector('[data-effect-cost="' + e.id + '"]');
+        if (node) node.textContent = (EFFECTS[e.id].negative ? "Redutor: " : "Custo: ") + effectCost(e, c.rank) + " pontos (autom\xE1tico)";
+      }
       section.querySelector("#technique-summary").textContent = "Rank " + c.rank + " \xB7 " + c.cost + " pontos de atributo \xB7 " + c.pa + " PA \xB7 " + c.emeralds + " Esmeraldas + 1 dia";
       section.querySelector("#technique-preview").innerHTML = techniqueHTML(t);
       section.querySelector("#technique-issues").innerHTML = c.issues.length ? '<ul class="issues">' + c.issues.map((i) => "<li>" + esc(i) + "</li>").join("") + "</ul>" : "<p>Limites conferidos. Revise a compatibilidade narrativa e as mec\xE2nicas com a equipe.</p>";
@@ -68,7 +72,8 @@ function installTechniqueEditor() {
           body += '<div class="technique-effect"><label><input type="checkbox" data-effect="' + id + '"' + (e ? " checked" : "") + "> " + esc(d.name) + '</label><p class="hint">' + esc(d.unit) + '</p><details><summary>Como funciona e quanto custa</summary><p class="hint">' + esc(TECHNIQUE_HELP[d.name] || d.unit).replaceAll("\n", "<br>") + "</p></details>";
           if (e) {
             const i = t.effects.indexOf(e);
-            body += (["damageType", "breakImmunity", "immunity", "resistance"].includes(id) ? select("Tipo de dano", "effects." + i + ".damageType", e.damageType || "Contundente", DAMAGE_TYPES.map((name) => [name, name])) : "") + (["condition", "dispel"].includes(id) ? select("Condi\xE7\xE3o", "effects." + i + ".condition", e.condition || "Restrito", Object.entries(TECHNIQUE_CONDITIONS).filter(([, c]) => c.cost !== null).map(([name, c]) => [name, name + " \u2014 " + c.cost + " pontos"])) + '<p class="hint">' + esc(TECHNIQUE_CONDITIONS[e.condition || "Restrito"]?.text || "") + "</p>" : "") + field("Quantidade \u2014 " + d.name, "effects." + i + ".quantity", e.quantity, "number") + (d.minute !== void 0 ? '<label><input type="checkbox" data-tech="effects.' + i + '.minute"' + (e.minute ? " checked" : "") + "> Dura\xE7\xE3o: 1 minuto (+" + d.minute + ")</label>" : "") + field("Detalhes \u2014 " + d.name, "effects." + i + ".detail", e.detail, "textarea");
+            body += '<p class="hint" data-effect-cost="' + id + '" aria-live="polite"></p>';
+            body += (["damageType", "breakImmunity", "immunity", "resistance"].includes(id) ? select("Tipo de dano", "effects." + i + ".damageType", e.damageType || "Contundente", DAMAGE_TYPES.map((name) => [name, name])) : "") + (["condition", "dispel"].includes(id) ? select("Condi\xE7\xE3o", "effects." + i + ".condition", e.condition || "Restrito", Object.entries(TECHNIQUE_CONDITIONS).filter(([, c]) => c.cost !== null).map(([name, c]) => [name, name + " \u2014 " + c.cost + " pontos"])) + '<p class="hint">' + esc(TECHNIQUE_CONDITIONS[e.condition || "Restrito"]?.text || "") + "</p>" : "") + field("Quantidade \u2014 " + d.name, "effects." + i + ".quantity", e.quantity, "number") + (d.minute !== void 0 ? '<label><input type="checkbox" data-tech="effects.' + i + '.minute"' + (e.minute ? " checked" : "") + "> Dura\xE7\xE3o: 1 minuto (+" + d.minute + ")</label>" : "") + field((["condition", "dispel"].includes(id) ? "Observa\xE7\xF5es opcionais \u2014 " : "Detalhes \u2014 ") + d.name, "effects." + i + ".detail", e.detail, "textarea");
           }
           body += "</div>";
         }
@@ -180,7 +185,7 @@ function installTechniqueEditor() {
   window.addEventListener("message", (event) => {
     if (event.source !== window.parent || event.origin !== FORUM_ORIGIN) return;
     if (event.data?.type === "romance-dawn-forum-context") {
-      connected = event.data.connected === true && event.data.isStaff === true;
+      connected = event.data.connected === true && event.data.canTechnique === true;
       button.hidden = !connected;
       if (!connected && !section.hidden) {
         section.hidden = true;

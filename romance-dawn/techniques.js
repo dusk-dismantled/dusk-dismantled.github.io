@@ -70,6 +70,11 @@ const EFFECTS = {
 function freshTechnique() {
   return { format: "romance-dawn-technique", version: 1, id: "rd-" + crypto.randomUUID(), name: "", character: "", sheetURL: "", topicURL: "", description: "", base: "", reach: 0, die: 6, sources: [], effects: [] };
 }
+function effectCost(e, rank) {
+  const def = EFFECTS[e.id];
+  if (["condition", "dispel"].includes(e.id)) return (TECHNIQUE_CONDITIONS[e.condition || ""]?.cost ?? 0) * e.quantity + (e.id === "dispel" ? 2 : 0);
+  return (e.id === "damageType" ? e.damageType === "Laser" ? 6 : 2 : def.cost(e.quantity, rank)) + (e.minute ? def.minute || 0 : 0);
+}
 function parseTechnique(value) {
   const t = structuredClone(value);
   if (!t || t.format !== "romance-dawn-technique" || t.version !== 1 || !/^rd-[\w-]{1,80}$/.test(t.id)) throw new Error("Backup de t\xE9cnica inv\xE1lido.");
@@ -93,8 +98,8 @@ function calculateTechnique(value) {
   const costs = (rank2) => {
     let positive = 0, negative = t.sources.some((s) => s.power === "Poder Marcial") ? Math.ceil(rank2 / 2) : 0;
     for (const e of t.effects) {
-      const def = EFFECTS[e.id], condition = ["condition", "dispel"].includes(e.id), n = condition ? (TECHNIQUE_CONDITIONS[e.condition || ""]?.cost || 0) * e.quantity + (e.id === "dispel" ? 2 : 0) : (e.id === "damageType" ? e.damageType === "Laser" ? 6 : 2 : def.cost(e.quantity, rank2)) + (e.minute ? def.minute || 0 : 0);
-      if (def.negative) negative += n;
+      const n = effectCost(e, rank2);
+      if (EFFECTS[e.id].negative) negative += n;
       else positive += n;
     }
     return { positive, negative, cost: positive - negative };
@@ -120,7 +125,7 @@ function calculateTechnique(value) {
   if (has("surgical") && !has("area")) issues.push("Controle Cir\xFArgico exige Ataque em \xC1rea.");
   if (has("potency") && !has("condition")) issues.push("Potencializar Aplica\xE7\xE3o exige Aplicar Condi\xE7\xE3o.");
   if (has("dependent") && has("dependent").quantity / 2 > rank) issues.push("O redutor de T\xE9cnica Dependente n\xE3o pode superar o Rank.");
-  for (const e of t.effects) if (EFFECTS[e.id].detail && !e.detail.trim()) issues.push("Detalhe " + EFFECTS[e.id].name + ".");
+  for (const e of t.effects) if (EFFECTS[e.id].detail && !e.detail.trim() && !(["condition", "dispel"].includes(e.id) && TECHNIQUE_CONDITIONS[e.condition || ""]?.cost != null)) issues.push("Detalhe " + EFFECTS[e.id].name + ".");
   for (const e of t.effects) if (["condition", "dispel"].includes(e.id)) {
     const condition = TECHNIQUE_CONDITIONS[e.condition || ""];
     if (!condition || condition.cost === null) issues.push("Escolha uma condi\xE7\xE3o reproduz\xEDvel para " + EFFECTS[e.id].name + ".");
@@ -159,6 +164,7 @@ export {
   REDUCERS,
   SOURCES,
   calculateTechnique,
+  effectCost,
   freshTechnique,
   parseTechnique,
   prepareTechniquePublication,

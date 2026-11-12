@@ -86,13 +86,13 @@ function publicationRejection(doc) {
   }
   return null;
 }
-function publicationChallenge(doc, forum, postId) {
+function publicationChallenge(doc, forum, postId, topicId) {
   const copy = doc.body?.cloneNode(true);
   copy?.querySelectorAll("script,style,input,textarea").forEach((n) => n.remove());
   if (!/verificação anti-spam/i.test(copy?.textContent || "")) return false;
   return [...doc.forms].some((form) => {
     const url = new URL(form.getAttribute("action") || "/post", FORUM_ORIGIN);
-    const destination = forum === 0 ? !!postId && form.querySelector('[name="p"]')?.value === postId : form.querySelector('[name="f"]')?.value === String(forum);
+    const destination = postId ? form.querySelector('[name="p"]')?.value === postId : topicId ? form.querySelector('[name="t"]')?.value === topicId : form.querySelector('[name="f"]')?.value === String(forum);
     return url.origin === FORUM_ORIGIN && url.pathname === "/post" && form.method === "post" && destination && !!form.querySelector('[name="post_confirm"]');
   });
 }

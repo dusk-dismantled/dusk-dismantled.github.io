@@ -1446,6 +1446,11 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
     devour: d("T\xE9cnica Devoradora", "Redutores", "Sem Haki por 1 minuto", () => 6, { max: 1, negative: true }),
     nonoffensive: d("T\xE9cnica N\xE3o-Ofensiva", "Redutores", "Sem dano ou condi\xE7\xF5es", (_, r) => r, { max: 1, negative: true })
   };
+  function effectCost(e, rank) {
+    const def = EFFECTS[e.id];
+    if (["condition", "dispel"].includes(e.id)) return (TECHNIQUE_CONDITIONS[e.condition || ""]?.cost ?? 0) * e.quantity + (e.id === "dispel" ? 2 : 0);
+    return (e.id === "damageType" ? e.damageType === "Laser" ? 6 : 2 : def.cost(e.quantity, rank)) + (e.minute ? def.minute || 0 : 0);
+  }
   function parseTechnique(value) {
     const t = structuredClone(value);
     if (!t || t.format !== "romance-dawn-technique" || t.version !== 1 || !/^rd-[\w-]{1,80}$/.test(t.id)) throw new Error("Backup de t\xE9cnica inv\xE1lido.");
@@ -1469,8 +1474,8 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
     const costs = (rank2) => {
       let positive = 0, negative = t.sources.some((s) => s.power === "Poder Marcial") ? Math.ceil(rank2 / 2) : 0;
       for (const e of t.effects) {
-        const def = EFFECTS[e.id], condition = ["condition", "dispel"].includes(e.id), n = condition ? (TECHNIQUE_CONDITIONS[e.condition || ""]?.cost || 0) * e.quantity + (e.id === "dispel" ? 2 : 0) : (e.id === "damageType" ? e.damageType === "Laser" ? 6 : 2 : def.cost(e.quantity, rank2)) + (e.minute ? def.minute || 0 : 0);
-        if (def.negative) negative += n;
+        const n = effectCost(e, rank2);
+        if (EFFECTS[e.id].negative) negative += n;
         else positive += n;
       }
       return { positive, negative, cost: positive - negative };
@@ -1496,7 +1501,7 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
     if (has("surgical") && !has("area")) issues.push("Controle Cir\xFArgico exige Ataque em \xC1rea.");
     if (has("potency") && !has("condition")) issues.push("Potencializar Aplica\xE7\xE3o exige Aplicar Condi\xE7\xE3o.");
     if (has("dependent") && has("dependent").quantity / 2 > rank) issues.push("O redutor de T\xE9cnica Dependente n\xE3o pode superar o Rank.");
-    for (const e of t.effects) if (EFFECTS[e.id].detail && !e.detail.trim()) issues.push("Detalhe " + EFFECTS[e.id].name + ".");
+    for (const e of t.effects) if (EFFECTS[e.id].detail && !e.detail.trim() && !(["condition", "dispel"].includes(e.id) && TECHNIQUE_CONDITIONS[e.condition || ""]?.cost != null)) issues.push("Detalhe " + EFFECTS[e.id].name + ".");
     for (const e of t.effects) if (["condition", "dispel"].includes(e.id)) {
       const condition = TECHNIQUE_CONDITIONS[e.condition || ""];
       if (!condition || condition.cost === null) issues.push("Escolha uma condi\xE7\xE3o reproduz\xEDvel para " + EFFECTS[e.id].name + ".");
@@ -1562,8 +1567,8 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
       dialog.style.setProperty("overflow", "auto", "important");
     };
     const context = async () => {
-      const canEdit = await authorized("edit"), canUpdate = await authorized("request"), isStaff = await authorized("staff");
-      frame.contentWindow?.postMessage({ type: "romance-dawn-forum-context", connected: connected(), canEdit, canUpdate, isStaff }, app.origin);
+      const canEdit = await authorized("edit"), canUpdate = await authorized("request"), isStaff = await authorized("staff"), canTechnique = await authorized("technique");
+      frame.contentWindow?.postMessage({ type: "romance-dawn-forum-context", connected: connected(), canEdit, canUpdate, isStaff, canTechnique }, app.origin);
     };
     frame.addEventListener("load", () => void context());
     async function nativeForm(publication) {
@@ -1971,7 +1976,7 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
           document.head.append(link);
         }
         const access = window.ROMANCE_DAWN_APP_ACCESS ?? "members";
-        const authorized = (kind) => canUseForumApp(kind === "staff" || kind === "update" || kind === "technique" ? "staff" : kind === "edit" || kind === "request" ? "members" : access);
+        const authorized = (kind) => canUseForumApp(kind === "staff" || kind === "update" ? "staff" : kind === "edit" || kind === "request" || kind === "technique" ? "members" : access);
         if (!await authorized() || document.getElementById("rd-bord-app-button")) return;
         const style = document.createElement("style");
         style.textContent = "#rd-bord-app-button{position:fixed;left:auto;right:16px;top:16px;z-index:9999;padding:11px 16px;border:1px solid #e6bd78;border-radius:7px;background:#272633;color:#f5eee1;cursor:pointer;font:700 11px/1.4 Verdana,sans-serif}#rd-bord-app-dialog{position:fixed;inset:0;margin:auto;box-sizing:border-box;width:98vw;max-width:98vw;height:96vh;max-height:96vh;border:1px solid #e6bd78;border-radius:12px;padding:0;background:#191923;color:#f5eee1}#rd-bord-app-dialog::backdrop,#rd-publication-confirm::backdrop{background:#080910dd}#rd-bord-app-dialog>header{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;font:700 11px Verdana,sans-serif}#rd-bord-app-dialog>header>button{background:transparent;border:0;color:inherit;font-size:24px;cursor:pointer}#rd-bord-app-dialog iframe{width:100%;height:calc(100% - 44px);border:0;display:block}#rd-publication-confirm button{padding:10px 14px;border:1px solid #e6bd78;border-radius:6px;background:#191923;color:#f5eee1;cursor:pointer}";
