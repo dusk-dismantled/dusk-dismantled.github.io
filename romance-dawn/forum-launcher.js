@@ -1454,6 +1454,7 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
   function parseTechnique(value) {
     const t = structuredClone(value);
     if (!t || t.format !== "romance-dawn-technique" || t.version !== 1 || !/^rd-[\w-]{1,80}$/.test(t.id)) throw new Error("Backup de t\xE9cnica inv\xE1lido.");
+    if (t.targetRank !== void 0 && (!Number.isInteger(t.targetRank) || t.targetRank < 0 || t.targetRank > 7)) throw new Error("Rank pretendido inv\xE1lido.");
     for (const key of ["name", "character", "sheetURL", "topicURL", "description", "base"]) if (typeof t[key] !== "string" || t[key].length > 1e4) throw new Error("Texto da t\xE9cnica inv\xE1lido.");
     if (!Number.isFinite(t.reach) || t.reach < 0 || t.reach > 1e5 || ![4, 6, 8, 10, 12].includes(t.die) || !Array.isArray(t.sources) || t.sources.length > 3 || !Array.isArray(t.effects) || t.effects.length > 50) throw new Error("Valores da t\xE9cnica inv\xE1lidos.");
     for (const s of t.sources) if (!POWERS[s.power]?.includes(s.attribute) || !Number.isInteger(s.grade) || s.grade < 0 || s.grade > 7) throw new Error("Fonte de poder inv\xE1lida.");
@@ -1487,6 +1488,7 @@ body:not(.darkmode) .rd-sheet [data-attribute][data-threshold="12"]{--rd-attribu
       issues.push("Os modificadores dependentes do Rank n\xE3o produzem um Rank est\xE1vel. Ajuste os efeitos ou redutores.");
     }
     const totals = costs(rank), has = (id) => t.effects.find((e) => e.id === id), pa = 2 + (has("charge") ? 1 : 0) - (has("fast") ? 1 : 0) + Math.max(0, (has("combo")?.quantity || 1) - 1);
+    if (t.targetRank && t.targetRank !== rank) issues.push("Rank pretendido: " + t.targetRank + "; Rank calculado: " + rank + ". Ajuste os efeitos e redutores: o custo final determina o Rank pela regra.");
     if (!t.name.trim() || !t.character.trim() || !t.description.trim() || !t.base.trim()) issues.push("Informe nome da t\xE9cnica, personagem, descri\xE7\xE3o e mec\xE2nica de base.");
     if (t.sources.length < 1 || t.sources.length > SOURCES[rank]) issues.push("Rank " + rank + " permite de 1 a " + SOURCES[rank] + " fontes.");
     const powerKey = (p) => /^(Paramecia|Zoan|Logia)/.test(p) ? "Akuma no Mi" : p;

@@ -1,4 +1,4 @@
-import { EFFECTS, POWERS, GRADES, DAMAGE_TYPES, freshTechnique, parseTechnique, calculateTechnique, techniqueHTML, effectCost } from "./techniques.js";
+import { EFFECTS, POWERS, GRADES, DAMAGE_TYPES, LIMITS, DAMAGE, SOURCES, REDUCERS, freshTechnique, parseTechnique, calculateTechnique, techniqueHTML, effectCost } from "./techniques.js";
 import { FORUM_ORIGIN } from "./posting.js";
 import { TECHNIQUE_HELP, TECHNIQUE_CONDITIONS } from "./technique-reference.js";
 function installTechniqueEditor() {
@@ -35,9 +35,38 @@ function installTechniqueEditor() {
   const message = (s) => {
     section.querySelector('[role="status"]').textContent = s;
   };
+  const confirmReplace = (text) => new Promise((resolve) => {
+    const dialog = document.createElement("dialog");
+    dialog.id = "technique-confirm";
+    dialog.setAttribute("aria-label", "Confirmar altera\xE7\xE3o da t\xE9cnica");
+    const description = document.createElement("p");
+    description.textContent = text;
+    const cancel = document.createElement("button");
+    cancel.type = "button";
+    cancel.textContent = "Cancelar";
+    const accept = document.createElement("button");
+    accept.type = "button";
+    accept.textContent = "Confirmar";
+    accept.id = "technique-confirm-accept";
+    dialog.style.cssText = "max-width:480px;padding:24px;border-radius:12px;background:var(--panel,#272633);color:var(--text,#f5eee1)";
+    cancel.onclick = () => dialog.close();
+    accept.onclick = () => dialog.close("confirmed");
+    dialog.addEventListener("close", () => {
+      const accepted = dialog.returnValue === "confirmed";
+      dialog.remove();
+      resolve(accepted);
+    }, { once: true });
+    dialog.append(description, cancel, accept);
+    document.body.append(dialog);
+    dialog.showModal();
+    cancel.focus();
+  });
   const preview = () => {
     try {
       const c = calculateTechnique(t);
+      const guide = section.querySelector("#technique-rank-guide");
+      const goal = t.targetRank || c.rank;
+      if (guide) guide.textContent = "Rank " + goal + ": custo at\xE9 " + LIMITS[goal] + "; at\xE9 " + DAMAGE[goal] + " dados adicionais, " + SOURCES[goal] + " fontes e " + REDUCERS[goal] + " pontos de redutores. Trilhas em " + GRADES[goal] + " ou superior. O Rank final continua determinado pelo custo.";
       for (const e of t.effects) {
         const node = section.querySelector('[data-effect-cost="' + e.id + '"]');
         if (node) node.textContent = (EFFECTS[e.id].negative ? "Redutor: " : "Custo: ") + effectCost(e, c.rank) + " pontos (autom\xE1tico)";
@@ -64,7 +93,7 @@ function installTechniqueEditor() {
       body += '<button data-tech-action="add-source"' + (t.sources.length >= 3 ? " disabled" : "") + '>+ Fonte de poder</button><p class="hint">Poder Marcial recebe redutor autom\xE1tico de metade do Rank, arredondado para cima. Haki precisa de outra fonte; Busoshoku/Kenbunshoku come\xE7am em Not\xE1vel e Haoshoku em Ex\xEDmio.</p>';
     }
     if (step === 2) {
-      body = "<p>Adicione efeitos e redutores. A quantidade usa a unidade indicada. Os custos e o Rank se ajustam a cada escolha.</p>";
+      body = select("Rank pretendido", "targetRank", t.targetRank || 0, [["0", "Autom\xE1tico"], ...Array.from({ length: 7 }, (_, i) => [String(i + 1), "Rank " + (i + 1)])]) + '<p id="technique-rank-guide" class="hint" aria-live="polite"></p><p>Adicione efeitos e redutores. A quantidade usa a unidade indicada. Os custos e o Rank se ajustam a cada escolha.</p>';
       for (const group of ["Ofensivos", "Controle", "Suporte", "Redutores"]) {
         body += '<details class="entry" open><summary>' + group + "</summary>";
         for (const [id, d] of Object.entries(EFFECTS).filter(([, d2]) => d2.group === group)) {
@@ -89,7 +118,7 @@ function installTechniqueEditor() {
         if (!file) return;
         if (file.size > 2e5) throw new Error("Backup excede 200 KB.");
         const next = parseTechnique(JSON.parse(await file.text()));
-        if (!window.confirm("Substituir o rascunho da t\xE9cnica? Guarde um backup se precisar preserv\xE1-lo.")) return;
+        if (!await confirmReplace("Substituir o rascunho da t\xE9cnica? Guarde um backup se precisar preserv\xE1-lo.")) return;
         t = next;
         save();
         render();
@@ -116,7 +145,7 @@ function installTechniqueEditor() {
     let obj = t;
     for (const part of bits.slice(0, -1)) obj = obj[part];
     const k = bits.at(-1);
-    obj[k] = input.type === "checkbox" ? input.checked : input.type === "number" || k === "die" || k === "grade" ? Number(input.value) : input.value;
+    obj[k] = input.type === "checkbox" ? input.checked : input.type === "number" || k === "die" || k === "grade" || k === "targetRank" ? Number(input.value) : input.value;
     if (k === "power") {
       obj.attribute = POWERS[obj.power][0];
       const baseDie = { "Paramecia \u2014 Extracorporal": 8, "Paramecia \u2014 Espa\xE7o-Temporal": 6, "Paramecia \u2014 Transforma\xE7\xE3o": 6, "Paramecia \u2014 Cria\xE7\xE3o": 10 }[obj.power];
@@ -138,7 +167,7 @@ function installTechniqueEditor() {
     save();
     render();
   });
-  section.addEventListener("click", (event) => {
+  section.addEventListener("click", async (event) => {
     const b = event.target.closest("[data-tech-action]");
     if (!b) return;
     try {
