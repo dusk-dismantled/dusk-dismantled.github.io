@@ -79,6 +79,19 @@ function parseTechnique(value) {
   const t = structuredClone(value);
   if (!t || t.format !== "romance-dawn-technique" || t.version !== 1 || !/^rd-[\w-]{1,80}$/.test(t.id)) throw new Error("Backup de t\xE9cnica inv\xE1lido.");
   if (t.targetRank !== void 0 && (!Number.isInteger(t.targetRank) || t.targetRank < 0 || t.targetRank > 7)) throw new Error("Rank pretendido inv\xE1lido.");
+  if (t.imageURL !== void 0) {
+    if (typeof t.imageURL !== "string" || t.imageURL.length > 2048) throw new Error("URL da imagem inv\xE1lida.");
+    t.imageURL = t.imageURL.trim();
+    if (t.imageURL) {
+      let url;
+      try {
+        url = new URL(t.imageURL);
+      } catch {
+        throw new Error("Informe uma URL HTTPS completa para a imagem.");
+      }
+      if (url.protocol !== "https:" || url.username || url.password || /[\u0000-\u0020<>"']/.test(t.imageURL)) throw new Error("Informe uma URL HTTPS v\xE1lida para a imagem.");
+    }
+  }
   for (const key of ["name", "character", "sheetURL", "topicURL", "description", "base"]) if (typeof t[key] !== "string" || t[key].length > 1e4) throw new Error("Texto da t\xE9cnica inv\xE1lido.");
   if (!Number.isFinite(t.reach) || t.reach < 0 || t.reach > 1e5 || ![4, 6, 8, 10, 12].includes(t.die) || !Array.isArray(t.sources) || t.sources.length > 3 || !Array.isArray(t.effects) || t.effects.length > 50) throw new Error("Valores da t\xE9cnica inv\xE1lidos.");
   for (const s of t.sources) if (!POWERS[s.power]?.includes(s.attribute) || !Number.isInteger(s.grade) || s.grade < 0 || s.grade > 7) throw new Error("Fonte de poder inv\xE1lida.");
@@ -147,8 +160,9 @@ function calculateTechnique(value) {
 }
 const esc = (s) => String(s).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replace(/\r?\n/g, "<br>");
 function techniqueHTML(t) {
+  t = parseTechnique(t);
   const c = calculateTechnique(t);
-  return '<section id="' + esc(t.id) + '" class="rd-technique"><h2>' + esc(t.name || "Sua t\xE9cnica") + "</h2><p>Personagem: " + esc(t.character) + " \xB7 Rank " + c.rank + "</p><p>" + esc(t.description) + "</p><p>Base: " + esc(t.base) + "</p><p>Fontes: " + t.sources.map((s) => esc(s.power) + " (" + esc(GRADES[s.grade]) + ", " + esc(s.attribute) + ")").join("; ") + "</p><p>Custo: " + c.cost + " pontos nos atributos das fontes \xB7 " + c.pa + " PA \xB7 Aprendizado: " + c.emeralds + " Esmeraldas e 1 dia</p><p>Alcance: " + c.reach + " m (0 = corpo a corpo) \xB7 Dado base ap\xF3s \xE1rea: d" + c.die + " \xB7 Dados adicionais: " + (t.effects.find((e) => e.id === "damage")?.quantity || 0) + "</p><ul>" + t.effects.map((e) => "<li>" + esc(EFFECTS[e.id].name) + " \xD7 " + e.quantity + (e.minute ? " (1 minuto)" : "") + ": " + (e.condition ? esc(e.condition) + " ? " : "") + (e.damageType ? esc(e.damageType) + " ? " : "") + esc(e.detail || EFFECTS[e.id].unit) + "</li>").join("") + "</ul><p>C\xE1lculo: " + c.positive + " \u2212 " + c.negative + " = " + c.cost + ".</p>" + (t.sheetURL ? '<p>Ficha: <a href="' + esc(t.sheetURL) + '">' + esc(t.sheetURL) + "</a></p>" : "") + "<p>A distribui\xE7\xE3o do custo entre fontes e as mec\xE2nicas espec\xEDficas ser\xE3o conferidas pela equipe. Aplicar Condi\xE7\xE3o exige 15+ no ataque (antes de Potencializar Aplica\xE7\xE3o). Cria\xE7\xE3o de arma exige concentra\xE7\xE3o. Esta solicita\xE7\xE3o n\xE3o concede aprova\xE7\xE3o nem desconta recursos da ficha.</p></section>";
+  return '<section id="' + esc(t.id) + '" class="rd-technique"><h2>' + esc(t.name || "Sua t\xE9cnica") + "</h2>" + (t.imageURL ? '<img src="' + esc(t.imageURL) + '" alt="Imagem da t\xE9cnica" loading="lazy" referrerpolicy="no-referrer" style="display:block!important;max-width:100%!important;width:auto!important;height:auto!important;max-height:400px!important;object-fit:contain;margin:16px auto">' : "") + "<p>Personagem: " + esc(t.character) + " \xB7 Rank " + c.rank + "</p><p>" + esc(t.description) + "</p><p>Base: " + esc(t.base) + "</p><p>Fontes: " + t.sources.map((s) => esc(s.power) + " (" + esc(GRADES[s.grade]) + ", " + esc(s.attribute) + ")").join("; ") + "</p><p>Custo: " + c.cost + " pontos nos atributos das fontes \xB7 " + c.pa + " PA \xB7 Aprendizado: " + c.emeralds + " Esmeraldas e 1 dia</p><p>Alcance: " + c.reach + " m (0 = corpo a corpo) \xB7 Dado base ap\xF3s \xE1rea: d" + c.die + " \xB7 Dados adicionais: " + (t.effects.find((e) => e.id === "damage")?.quantity || 0) + "</p><ul>" + t.effects.map((e) => "<li>" + esc(EFFECTS[e.id].name) + " \xD7 " + e.quantity + (e.minute ? " (1 minuto)" : "") + ": " + (e.condition ? esc(e.condition) + " ? " : "") + (e.damageType ? esc(e.damageType) + " ? " : "") + esc(e.detail || EFFECTS[e.id].unit) + "</li>").join("") + "</ul><p>C\xE1lculo: " + c.positive + " \u2212 " + c.negative + " = " + c.cost + ".</p>" + (t.sheetURL ? '<p>Ficha: <a href="' + esc(t.sheetURL) + '">' + esc(t.sheetURL) + "</a></p>" : "") + "<p>A distribui\xE7\xE3o do custo entre fontes e as mec\xE2nicas espec\xEDficas ser\xE3o conferidas pela equipe. Aplicar Condi\xE7\xE3o exige 15+ no ataque (antes de Potencializar Aplica\xE7\xE3o). Cria\xE7\xE3o de arma exige concentra\xE7\xE3o. Esta solicita\xE7\xE3o n\xE3o concede aprova\xE7\xE3o nem desconta recursos da ficha.</p></section>";
 }
 function prepareTechniquePublication(value) {
   const t = parseTechnique(value?.technique), c = calculateTechnique(t);
