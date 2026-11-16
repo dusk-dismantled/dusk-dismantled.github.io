@@ -1,0 +1,168 @@
+.nsc-chinoike-ritsu-post {
+  max-width:620px;
+  margin:30px auto;
+  background:#111b20;
+  border:1px solid #33434a;
+  border-radius:32px 12px 32px 12px;
+  box-shadow:0 18px 50px #07101430;
+  color:#c4cdcf;
+  text-align:left;
+  font:15px/1.9 Georgia,serif;
+  box-sizing:border-box;
+  overflow:hidden;
+}
+
+.nsc-chinoike-ritsu-post .nsc-chinoike-ritsu-acento {
+  height:5px;
+  background:linear-gradient(105deg,#6a858b 0%,#6a858b 73%,#ae3944 73%,#ae3944 89%,#111b20 89%);
+}
+
+.nsc-chinoike-ritsu-post .nsc-chinoike-ritsu-cabecalho {
+  position:relative;
+  min-height:280px;
+  padding:34px 7% 28px;
+  background:radial-gradient(ellipse at 85% 0%,#40535980,transparent 65%),linear-gradient(155deg,#25383f,#152128 65%);
+  border-radius:0 0 48% 0 / 0 0 24px 0;
+  overflow:hidden;
+  box-sizing:border-box;
+}
+
+.nsc-chinoike-ritsu-post .nsc-chinoike-ritsu-retrato {
+  position:absolute;
+  inset:0 0 0 36%;
+  background-image:linear-gradient(90deg,#1c2c34db 0%,#15212866 48%,#15212826 100%),radial-gradient(ellipse at 25% 85%,#8ba1a52e,transparent 65%),url('https://files.catbox.moe/mttk9b.jpg');
+  background-size:cover;
+  background-position:center 25%;
+  opacity:1;
+  mask-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22 preserveAspectRatio=%22none%22%3E%3Cpath fill=%22white%22 d=%22M7 0H100V100H7C7 75 10 25 7 0Z%22/%3E%3C/svg%3E');
+  mask-size:100% 100%;
+  mask-repeat:no-repeat;
+  -webkit-mask-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22 preserveAspectRatio=%22none%22%3E%3Cpath fill=%22white%22 d=%22M7 0H100V100H7C7 75 10 25 7 0Z%22/%3E%3C/svg%3E');
+  -webkit-mask-size:100% 100%;
+  -webkit-mask-repeat:no-repeat;
+}
+
+.nsc-chinoike-ritsu-post .nsc-chinoike-ritsu-nevoa {
+  position:absolute;
+  inset:0;
+  background:linear-gradient(0deg,#152128,transparent 28%);
+}
+
+.nsc-chinoike-ritsu-post .nsc-chinoike-ritsu-identidade {
+  position:relative;
+  z-index:1;
+  width:48%;
+}
+
+.nsc-chinoike-ritsu-post .nsc-chinoike-ritsu-origem {
+  font:10px/1.5 Arial,sans-serif;
+  letter-spacing:3px;
+  color:#a7b9bd;
+}
+
+.nsc-chinoike-ritsu-post .nsc-chinoike-ritsu-nome {
+  margin:17px 0 0;
+  font:italic 58px/1 Georgia,serif;
+  letter-spacing:-3px;
+  color:#edf0e9;
+}
+
+.nsc-chinoike-ritsu-post .nsc-chinoike-ritsu-ponto {
+  color:#c64d59;
+}
+
+.nsc-chinoike-ritsu-post .nsc-chinoike-ritsu-traco {
+  width:56px;
+  height:2px;
+  margin:22px 0 15px;
+  background:#c64d59;
+  transform:rotate(-7deg);
+}
+
+.nsc-chinoike-ritsu-post .nsc-chinoike-ritsu-juramento {
+  max-width:360px;
+  font:11px/1.8 Arial,sans-serif;
+  letter-spacing:1px;
+  color:#b9c7ca;
+}
+
+.nsc-chinoike-ritsu-post .nsc-chinoike-ritsu-cena {
+  padding:24px 7% 8px;
+  font:10px/1.8 Arial,sans-serif;
+  letter-spacing:1.5px;
+  color:#91a7ae;
+}
+
+.nsc-chinoike-ritsu-post .nsc-chinoike-ritsu-local {
+  color:#c5cccb;
+  letter-spacing:.5px;
+}
+
+.nsc-chinoike-ritsu-post .nsc-chinoike-ritsu-narracao {
+  padding:30px 7% 20px;
+  white-space:pre-line;
+}
+
+.nsc-chinoike-ritsu-post .nsc-chinoike-ritsu-narracao p {
+  margin:0 0 20px;
+  white-space:normal;
+}
+
+.nsc-chinoike-ritsu-post .nsc-chinoike-ritsu-narracao b {
+  color:#e58b91;
+}
+
+.nsc-chinoike-ritsu-post .nsc-chinoike-ritsu-narracao i {
+  color:#a9bec4;
+}
+
+.nsc-chinoike-ritsu-post .nsc-chinoike-ritsu-notas {
+  margin:0 7% 28px;
+  padding:16px 18px;
+  border-left:2px solid #ad414c;
+  border-radius:4px 20px 20px 16px;
+  background:linear-gradient(110deg,#18262c,#18262c35);
+  font:12px/1.8 Arial,sans-serif;
+  color:#aabcc1;
+}
+
+.nsc-chinoike-ritsu-post .nsc-chinoike-ritsu-notas-titulo {
+  font-size:9px;
+  letter-spacing:2px;
+  color:#db9399;
+}
+
+.nsc-chinoike-ritsu-post .nsc-chinoike-ritsu-status {
+  margin:4px 7% 0;
+  padding:22px 0 6px;
+  background:linear-gradient(90deg,transparent,#536b7355,transparent) top/100% 1px no-repeat;
+  text-align:center;
+  font:12px/1.6 Arial,sans-serif;
+  color:#c4cdcf;
+}
+
+.nsc-chinoike-ritsu-post .nsc-chinoike-ritsu-reserva {
+  display:inline-block;
+  width:24%;
+  vertical-align:top;
+}
+
+.nsc-chinoike-ritsu-post .nsc-chinoike-ritsu-sigla {
+  display:block;
+  margin-bottom:7px;
+  font-size:9px;
+  letter-spacing:2px;
+  color:#b7757d;
+}
+
+.nsc-chinoike-ritsu-post .nsc-chinoike-ritsu-maximo {
+  font-size:10px;
+  color:#718991;
+}
+
+.nsc-chinoike-ritsu-post .nsc-chinoike-ritsu-assinatura {
+  padding:16px 7% 24px;
+  font:9px/1.6 Arial,sans-serif;
+  letter-spacing:2px;
+  color:#718991;
+}
